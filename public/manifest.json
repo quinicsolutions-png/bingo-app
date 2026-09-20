@@ -1,0 +1,34 @@
+{
+  "name": "Bingo - AI Football Predictions",
+  "short_name": "Bingo",
+  "description": "Free AI-powered football match predictions with Dixon-Coles model",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "categories": ["sports", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Today's Predictions",
+      "short_name": "Predictions",
+      "description": "View today's match predictions",
+      "url": "/predictions"
+    },
+    {
+      "name": "Track Record",
+      "short_name": "History",
+      "description": "View prediction accuracy history",
+      "url": "/history"
+    }
+  ]
+}
