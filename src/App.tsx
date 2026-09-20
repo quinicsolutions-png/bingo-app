@@ -1,112 +1,138 @@
-import { useState } from 'react';
-import { ExecutiveSummary } from './components/ExecutiveSummary';
-import { FeasibilityScores } from './components/FeasibilityScores';
-import { TechnicalFeasibility } from './components/TechnicalFeasibility';
-import { LegalFeasibility } from './components/LegalFeasibility';
-import { FinancialFeasibility } from './components/FinancialFeasibility';
-import { MarketFeasibility } from './components/MarketFeasibility';
-import { OperationalFeasibility } from './components/OperationalFeasibility';
-import { TimelineFeasibility } from './components/TimelineFeasibility';
-import { RiskMatrix } from './components/RiskMatrix';
-import { SWOTAnalysis } from './components/SWOTAnalysis';
-import { Recommendations } from './components/Recommendations';
-import { Verdict } from './components/Verdict';
+import { useState, useEffect } from 'react';
+import { Dashboard } from './components/Dashboard';
+import { Predictions } from './components/Predictions';
+import { History } from './components/History';
+import { Methodology } from './components/Methodology';
+import { OpenSource } from './components/OpenSource';
+import { BlockerMitigation } from './components/BlockerMitigation';
 
-type Section = 'overview' | 'technical' | 'legal' | 'financial' | 'market' | 'operational' | 'timeline' | 'risks' | 'swot' | 'recommendations';
+type Page = 'dashboard' | 'predictions' | 'history' | 'methodology' | 'opensource' | 'mitigation';
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState<Section>('overview');
+  const [page, setPage] = useState<Page>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const sections: { id: Section; label: string; icon: string }[] = [
-    { id: 'overview', label: 'Overview', icon: 'fa-chart-line' },
-    { id: 'technical', label: 'Technical', icon: 'fa-microchip' },
-    { id: 'legal', label: 'Legal', icon: 'fa-scale-balanced' },
-    { id: 'financial', label: 'Financial', icon: 'fa-coins' },
-    { id: 'market', label: 'Market', icon: 'fa-users' },
-    { id: 'operational', label: 'Operational', icon: 'fa-gears' },
-    { id: 'timeline', label: 'Timeline', icon: 'fa-clock' },
-    { id: 'risks', label: 'Risk Matrix', icon: 'fa-triangle-exclamation' },
-    { id: 'swot', label: 'SWOT', icon: 'fa-bullseye' },
-    { id: 'recommendations', label: 'Verdict', icon: 'fa-flag-checkered' },
+  useEffect(() => {
+    document.documentElement.classList.add('dark');
+  }, []);
+
+  const navItems: { id: Page; label: string; icon: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'fa-gauge-high' },
+    { id: 'predictions', label: 'Predictions', icon: 'fa-brain' },
+    { id: 'history', label: 'Track Record', icon: 'fa-chart-line' },
+    { id: 'methodology', label: 'Methodology', icon: 'fa-flask' },
+    { id: 'opensource', label: 'Open Source', icon: 'fa-code-branch' },
+    { id: 'mitigation', label: 'Blocker Fix', icon: 'fa-shield-halved' },
   ];
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
-              <i className="fa-solid fa-brain text-white text-lg"></i>
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <i className="fa-solid fa-futbol text-white text-sm"></i>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">SportPesa AI</h1>
-              <p className="text-xs text-gray-400">Feasibility Study Report</p>
+              <h1 className="text-base font-bold text-white tracking-tight">MatchIQ</h1>
+              <p className="text-[10px] text-gray-500 -mt-0.5">Free AI Football Predictions</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2 text-sm text-gray-400">
-            <i className="fa-regular fa-calendar"></i>
-            <span>September 2026</span>
-            <span className="mx-2">|</span>
-            <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-medium">
-              CONDITIONAL GO
-            </span>
-          </div>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setPage(item.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  page === item.id
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                }`}
+              >
+                <i className={`fa-solid ${item.icon} mr-1.5`}></i>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center"
+          >
+            <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-gray-400`}></i>
+          </button>
         </div>
+
+        {/* Mobile Nav */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden border-t border-gray-800 p-2 bg-gray-900">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setPage(item.id); setMobileMenuOpen(false); }}
+                className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm ${
+                  page === item.id
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'text-gray-400 hover:bg-gray-800'
+                }`}
+              >
+                <i className={`fa-solid ${item.icon} w-4`}></i>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        )}
       </header>
 
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
-        {/* Sidebar Navigation */}
-        <nav className="lg:w-56 lg:min-h-screen bg-gray-900/50 border-r border-gray-800 p-4 lg:sticky lg:top-16 lg:self-start">
-          <ul className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
-            {sections.map((section) => (
-              <li key={section.id}>
-                <button
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all w-full text-left ${
-                    activeSection === section.id
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-                  }`}
-                >
-                  <i className={`fa-solid ${section.icon} w-4 text-center`}></i>
-                  <span>{section.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8 max-w-full overflow-hidden">
-          {activeSection === 'overview' && (
-            <div className="space-y-8">
-              <ExecutiveSummary />
-              <FeasibilityScores />
-            </div>
-          )}
-          {activeSection === 'technical' && <TechnicalFeasibility />}
-          {activeSection === 'legal' && <LegalFeasibility />}
-          {activeSection === 'financial' && <FinancialFeasibility />}
-          {activeSection === 'market' && <MarketFeasibility />}
-          {activeSection === 'operational' && <OperationalFeasibility />}
-          {activeSection === 'timeline' && <TimelineFeasibility />}
-          {activeSection === 'risks' && <RiskMatrix />}
-          {activeSection === 'swot' && <SWOTAnalysis />}
-          {activeSection === 'recommendations' && (
-            <div className="space-y-8">
-              <Verdict />
-              <Recommendations />
-            </div>
-          )}
-        </main>
-      </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {page === 'dashboard' && <Dashboard onNavigate={setPage} />}
+        {page === 'predictions' && <Predictions />}
+        {page === 'history' && <History />}
+        {page === 'methodology' && <Methodology />}
+        {page === 'opensource' && <OpenSource />}
+        {page === 'mitigation' && <BlockerMitigation />}
+      </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-800 py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
-          <p>Feasibility Study — SportPesa AI Blueprint v1.0</p>
-          <p className="mt-1">Prepared: September 2026 • Classification: Internal • Status: Draft — pending legal review</p>
+      <footer className="bg-gray-900 border-t border-gray-800 py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">MatchIQ</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Free, open-source AI football predictions. Statistical analysis only — not a betting service.
+                Built with open-source tools and free data APIs.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Data Sources</h4>
+              <ul className="space-y-1 text-xs text-gray-500">
+                <li>• football-data.org (free tier)</li>
+                <li>• openfootball datasets (public domain)</li>
+                <li>• Dixon-Coles model (open source)</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-2">Disclaimer</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                This app provides statistical analysis only. It does not accept wagers, guarantee outcomes, or constitute gambling advice. Predictions are probabilistic and may be wrong.
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-4 flex flex-col md:flex-row items-center justify-between gap-2">
+            <p className="text-xs text-gray-600">© 2026 MatchIQ — Open Source (MIT License)</p>
+            <div className="flex items-center gap-4">
+              <a href="https://github.com" className="text-xs text-gray-500 hover:text-gray-300">
+                <i className="fa-brands fa-github mr-1"></i>GitHub
+              </a>
+              <span className="text-xs text-gray-600">v2.1.0</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
