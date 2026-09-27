@@ -90,8 +90,12 @@ Bingo uses the **Dixon-Coles model** (1994), the gold standard for football pred
 ## 🔧 Development
 
 ```bash
-# Install dependencies
-npm install
+# Use Node.js 22+ and npm 10+
+nvm install
+nvm use
+
+# Install dependencies from the lockfile
+npm ci
 
 # Run dev server
 npm run dev
@@ -105,15 +109,27 @@ npm run preview
 
 ## 📦 Deployment
 
-### GitHub Pages (Recommended)
+### Build an Android APK
+
+Use Node.js 22+, npm 10+, Java 21, and the Android SDK. Set `ANDROID_HOME` to
+your SDK directory, then run:
 
 ```bash
-# Build
-npm run build
-
-# Push to gh-pages branch
-git subtree push --prefix dist origin gh-pages
+npm ci
+npm run android:apk
 ```
+
+The debug APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
+It is signed with the debug key for local installation and testing; create a
+release signing configuration before distributing an APK publicly.
+
+### GitHub Pages (Recommended)
+
+The `.github/workflows/pages.yml` workflow builds and deploys the site whenever
+you push to `main` or `master` (or run it manually from the Actions tab).
+In the repository's **Settings → Pages**, set the build and deployment source
+to **GitHub Actions**. Then push your changes; the deployment URL appears in
+the workflow run and Pages settings.
 
 ### Other Platforms
 
@@ -180,3 +196,4 @@ Contributions welcome! Areas for improvement:
 ---
 
 **Built with ❤️ for football fans worldwide**
+# bingo-football-predictions

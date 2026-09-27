@@ -1,11 +1,28 @@
-import { ACTIVE_WEEK, PLATFORM_STATS } from '../data/matchData';
+import { useBingoData } from '../data/api';
+import { statsFromWeeks } from '../data/matchData';
 
 interface Props {
   onNavigate: (page: 'dashboard' | 'predictions' | 'history' | 'settings') => void;
 }
 
 export function Dashboard({ onNavigate }: Props) {
-  const timeUntilCutoff = getTimeUntil(ACTIVE_WEEK.cutoffTime);
+  const { status, data } = useBingoData();
+  if (status === 'loading') {
+    return <p className="text-xs text-gray-400">Loading slate…</p>;
+  }
+  const week = data?.week ?? null;
+  if (!week) {
+    return (
+      <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+        <h2 className="text-sm font-bold text-white">No slate yet</h2>
+        <p className="text-[10px] text-gray-400 mt-1 leading-relaxed">
+          The next matches will appear here after GitHub Actions publishes the slate.
+        </p>
+      </div>
+    );
+  }
+  const stats = statsFromWeeks(data?.weeks ?? [], week);
+  const timeUntilCutoff = getTimeUntil(week.cutoffTime);
 
   return (
     <div className="space-y-4">
@@ -14,17 +31,17 @@ export function Dashboard({ onNavigate }: Props) {
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">This Week</p>
-            <h2 className="text-lg font-bold text-white mt-0.5">{ACTIVE_WEEK.label}</h2>
+            <h2 className="text-lg font-bold text-white mt-0.5">{week.label}</h2>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-white">{ACTIVE_WEEK.matches.length}</p>
+            <p className="text-2xl font-bold text-white">{week.matches.length}</p>
             <p className="text-[10px] text-gray-400">matches</p>
           </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-clock text-amber-400 text-xs"></i>
-            <span className="text-xs text-gray-300">Cutoff in <strong className="text-amber-400">{timeUntilCutoff}</strong></span>
+            <span className="text-xs text-gray-300">{timeUntilCutoff === 'passed' ? 'Cutoff ' : 'Cutoff in '}<strong className="text-amber-400">{timeUntilCutoff}</strong></span>
           </div>
           <button
             onClick={() => onNavigate('predictions')}
@@ -40,28 +57,28 @@ export function Dashboard({ onNavigate }: Props) {
         <StatCard
           icon="fa-bullseye"
           label="Accuracy"
-          value={`${PLATFORM_STATS.overallAccuracy}%`}
-          sublabel={`${PLATFORM_STATS.correctPredictions}/${PLATFORM_STATS.totalPredictions}`}
+          value={formatPercent(stats.overallAccuracy)}
+          sublabel={stats.totalPredictions ? `${stats.correctPredictions}/${stats.totalPredictions}` : 'No settled picks'}
           color="emerald"
         />
         <StatCard
           icon="fa-fire"
           label="High Confidence"
-          value={`${PLATFORM_STATS.highConfidenceAccuracy}%`}
+          value={formatPercent(stats.highConfidenceAccuracy)}
           sublabel="When model is sure"
           color="amber"
         />
         <StatCard
           icon="fa-calendar-check"
           label="Weeks Tracked"
-          value={PLATFORM_STATS.weeksTracked.toString()}
+          value={stats.weeksTracked.toString()}
           sublabel="Public record"
           color="cyan"
         />
         <StatCard
           icon="fa-trophy"
           label="Leagues"
-          value={PLATFORM_STATS.leaguesCovered.toString()}
+          value={stats.leaguesCovered.toString()}
           sublabel="Top European"
           color="purple"
         />
@@ -76,7 +93,7 @@ export function Dashboard({ onNavigate }: Props) {
           </button>
         </div>
         <div className="divide-y divide-gray-800/50">
-          {ACTIVE_WEEK.matches.slice(0, 5).map((match) => (
+          {week.matches.slice(0, 5).map((match) => (
             <div key={match.id} className="flex items-center justify-between p-3">
               <div className="flex items-center gap-2.5">
                 <span className="text-sm">{match.leagueIcon}</span>
@@ -156,8 +173,13 @@ function ConfidenceBadge({ confidence }: { confidence: string }) {
   );
 }
 
+function formatPercent(value: number | null): string {
+  return value == null ? '—' : `${value}%`;
+}
+
 function getTimeUntil(isoDate: string): string {
   const diff = new Date(isoDate).getTime() - Date.now();
+  if (diff <= 0) return 'passed';
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   if (days > 0) return `${days}d ${hours}h`;

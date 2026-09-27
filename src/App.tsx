@@ -4,16 +4,19 @@ import { Predictions } from './components/Predictions';
 import { History } from './components/History';
 import { Settings } from './components/Settings';
 import { InstallPrompt } from './components/InstallPrompt';
+import { publicAsset, useBingoData } from './data/api';
 
 type Page = 'dashboard' | 'predictions' | 'history' | 'settings';
 
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const { data } = useBingoData();
+  const live = data?.week?.matches.some((match) => match.status === 'live') ?? false;
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
-    
+
     // Listen for install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -43,17 +46,19 @@ export default function App() {
       <header className="bg-gray-900/95 backdrop-blur-md border-b border-gray-800 sticky top-0 z-40">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/icon.svg" alt="Bingo" className="w-8 h-8 rounded-lg" />
+            <img src={publicAsset('icon.svg')} alt="Bingo" className="w-8 h-8 rounded-lg" />
             <div>
               <h1 className="text-base font-bold text-white tracking-tight">Bingo</h1>
               <p className="text-[9px] text-gray-500 -mt-0.5">AI Football Predictions</p>
             </div>
           </div>
+          {live && (
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
               LIVE
             </span>
           </div>
+          )}
         </div>
       </header>
 

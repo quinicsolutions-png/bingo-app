@@ -1,19 +1,27 @@
 import { useState } from 'react';
-import { ACTIVE_WEEK, Match } from '../data/matchData';
+import { useBingoData } from '../data/api';
+import { Match } from '../data/matchData';
 
 export function Predictions() {
+  const { status, data } = useBingoData();
   const [filter, setFilter] = useState<'all' | 'HIGH' | 'MEDIUM' | 'DRAW_ALERT'>('all');
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
+  const week = data?.week ?? null;
+  const matches = week?.matches ?? [];
 
   const filteredMatches = filter === 'all'
-    ? ACTIVE_WEEK.matches
-    : ACTIVE_WEEK.matches.filter(m => m.prediction?.confidence === filter);
+    ? matches
+    : matches.filter(m => m.prediction?.confidence === filter);
+
+  if (status === 'loading') {
+    return <p className="text-xs text-gray-400">Loading predictions…</p>;
+  }
 
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-bold text-white">AI Predictions</h2>
-        <p className="text-xs text-gray-400">{ACTIVE_WEEK.label}</p>
+        <p className="text-xs text-gray-400">{week?.label ?? 'Waiting for the next slate'}</p>
       </div>
 
       {/* Filters */}
@@ -36,6 +44,9 @@ export function Predictions() {
 
       {/* Match Cards */}
       <div className="space-y-2">
+        {filteredMatches.length === 0 && (
+          <p className="text-xs text-gray-400">No matches in this slate yet.</p>
+        )}
         {filteredMatches.map((match) => (
           <MatchCard
             key={match.id}

@@ -3,3 +3,10 @@ node_modules/
 dist/
 build/
 *.log
+.idea/
+.cursor/
+dist.tar.gz
+android/.gradle/
+android/local.properties
+android/build/
+android/app/build/

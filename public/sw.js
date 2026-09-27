@@ -1,10 +1,10 @@
 // Bingo Service Worker - Offline Support
-const CACHE_NAME = 'bingo-v1';
+const CACHE_NAME = 'bingo-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.svg'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.svg'
 ];
 
 // Install event - cache essential files
@@ -20,6 +20,14 @@ self.addEventListener('install', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  if (url.pathname.includes('/data/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request).then((cached) => cached || Response.error()))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {

@@ -1,6 +1,9 @@
-import { PLATFORM_STATS } from '../data/matchData';
+import { useBingoData, publicAsset } from '../data/api';
+import { APP_VERSION } from '../data/matchData';
 
 export function Settings() {
+  const { data } = useBingoData();
+  const updated = data?.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : 'Not published yet';
   return (
     <div className="space-y-4">
       <div>
@@ -11,17 +14,18 @@ export function Settings() {
       {/* App Info */}
       <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
         <div className="flex items-center gap-3 mb-4">
-          <img src="/icon.svg" alt="Bingo" className="w-14 h-14 rounded-xl" />
+          <img src={publicAsset('icon.svg')} alt="Bingo" className="w-14 h-14 rounded-xl" />
           <div>
             <h3 className="text-base font-bold text-white">Bingo</h3>
-            <p className="text-[10px] text-gray-500">Version {PLATFORM_STATS.modelVersion}</p>
+            <p className="text-[10px] text-gray-500">Version {APP_VERSION}</p>
             <p className="text-[10px] text-emerald-400">AI Football Predictions</p>
           </div>
         </div>
         <div className="space-y-2">
           <InfoRow label="Model" value="Dixon-Coles + Poisson" />
-          <InfoRow label="Last Updated" value={new Date(PLATFORM_STATS.lastUpdated).toLocaleDateString()} />
+          <InfoRow label="Last Updated" value={updated} />
           <InfoRow label="Data Source" value="football-data.org" />
+          <InfoRow label="Scores" value="Delayed on the free plan" />
           <InfoRow label="License" value="MIT (Open Source)" />
         </div>
       </div>
@@ -36,7 +40,7 @@ export function Settings() {
             </div>
             <div>
               <p className="text-xs font-medium text-white">Data Collection</p>
-              <p className="text-[10px] text-gray-400">Match data from football-data.org free API</p>
+              <p className="text-[10px] text-gray-400">Match data from football-data.org. Scores on the free plan are delayed.</p>
             </div>
           </div>
           <div className="flex items-start gap-2">
@@ -100,7 +104,7 @@ export function Settings() {
             <span className="text-xs text-gray-300">
               <i className="fa-solid fa-info-circle mr-2 text-gray-500"></i>About
             </span>
-            <span className="text-[10px] text-gray-500">v{PLATFORM_STATS.modelVersion}</span>
+            <span className="text-[10px] text-gray-500">v{APP_VERSION}</span>
           </div>
         </div>
       </div>

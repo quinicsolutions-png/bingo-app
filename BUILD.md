@@ -1,3 +1,4 @@
+
 # Bingo APK - Build Complete ✓
 
 ## What Was Built
@@ -31,11 +32,13 @@ Bingo/
 
 1. **Deploy to GitHub Pages:**
    ```bash
-   npm run build
-   git add dist
-   git commit -m "Build"
-   git subtree push --prefix dist origin gh-pages
+   git add .github/workflows/pages.yml
+   git commit -m "Add GitHub Pages deployment"
+   git push
    ```
+   In the repository's **Settings → Pages**, set the build and deployment
+   source to **GitHub Actions**. The workflow builds and deploys on pushes to
+   `main` or `master`; run it manually from the Actions tab if needed.
 
 2. **Access on Android:**
    - Open Chrome/Edge on Android phone
@@ -164,11 +167,10 @@ Edit `src/data/matchData.ts` to adjust:
 ## Deployment Options
 
 ### 1. GitHub Pages (Free)
-```bash
-npm run build
-git subtree push --prefix dist origin gh-pages
-```
-URL: `https://username.github.io/bingo`
+The `.github/workflows/pages.yml` workflow automatically builds and deploys
+`dist/` to GitHub Pages on pushes to `main` or `master`. Set the repository's
+Pages deployment source to **GitHub Actions**. The workflow run shows the
+published URL.
 
 ### 2. Netlify (Free)
 - Drag & drop `dist/` folder to netlify.com
