@@ -1,8 +1,10 @@
 import { Capacitor } from "@capacitor/core";
 import { useEffect, useState } from "react";
-import type { HistoryFile, JackpotWeek, SlateFile } from "./matchData";
+import type { HistoryFile, JackpotWeek, Match, SlateFile } from "./matchData";
 
 const CACHE_KEY = "bingo-data-v1";
+const MANUAL_MATCHES_KEY = "bingo-manual-matches-v1";
+const MANUAL_MATCHES_EVENT = "bingo-manual-matches-updated";
 
 export interface BingoData {
   week: JackpotWeek | null;
@@ -20,6 +22,74 @@ const EMPTY: BingoData = {
 
 export function publicAsset(path: string): string {
   return `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+}
+
+function fixtureKey(match: Pick<Match, "kickoff" | "homeTeam" | "awayTeam">): string {
+  return [
+    match.kickoff.slice(0, 10),
+    match.homeTeam.trim().toLocaleLowerCase(),
+    match.awayTeam.trim().toLocaleLowerCase(),
+  ].join("|");
+}
+
+function readManualMatches(): Match[] {
+  try {
+    const raw = localStorage.getItem(MANUAL_MATCHES_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as Match[] : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveManualMatches(matches: Match[]): void {
+  try {
+    const existing = readManualMatches();
+    const byFixture = new Map(existing.map((match) => [fixtureKey(match), match]));
+    for (const match of matches) byFixture.set(fixtureKey(match), match);
+    localStorage.setItem(MANUAL_MATCHES_KEY, JSON.stringify([...byFixture.values()]));
+    window.dispatchEvent(new Event(MANUAL_MATCHES_EVENT));
+  } catch (error) {
+    throw new Error(`Could not save uploaded fixtures on this device: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+function withManualMatches(data: BingoData): BingoData {
+  const manualMatches = readManualMatches();
+  if (manualMatches.length === 0) return data;
+
+  const matches = [...(data.week?.matches ?? [])];
+  const indexes = new Map(matches.map((match, index) => [fixtureKey(match), index]));
+  for (const manual of manualMatches) {
+    const index = indexes.get(fixtureKey(manual));
+    if (index === undefined) {
+      indexes.set(fixtureKey(manual), matches.length);
+      matches.push(manual);
+    } else {
+      matches[index] = {
+        ...matches[index],
+        odds: manual.odds,
+        dataSource: manual.dataSource,
+      };
+    }
+  }
+
+  matches.sort((a, b) => a.kickoff.localeCompare(b.kickoff));
+  const firstKickoff = matches[0]?.kickoff ?? new Date().toISOString();
+  const week: JackpotWeek = data.week
+    ? { ...data.week, matches, totalMatches: matches.length }
+    : {
+        id: `manual-${firstKickoff.slice(0, 10)}`,
+        label: "Uploaded fixtures",
+        status: "active",
+        cutoffTime: firstKickoff,
+        matches,
+        score: null,
+        totalMatches: matches.length,
+        settledAt: null,
+      };
+  return { ...data, week };
 }
 
 // Native builds set VITE_PAGES_ORIGIN to the GitHub Pages site, for example
@@ -98,11 +168,16 @@ export function useBingoData() {
     let cancelled = false;
     loadBingoData().then((next) => {
       if (cancelled) return;
-      setData(next);
+      setData(withManualMatches(next));
       setStatus("ready");
     });
+    const updateManualMatches = () => {
+      setData((current) => current ? withManualMatches(current) : current);
+    };
+    window.addEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
     return () => {
       cancelled = true;
+      window.removeEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
     };
   }, []);
 

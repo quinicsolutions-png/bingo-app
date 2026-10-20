@@ -4,6 +4,21 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Refresh active data or compare providers without writing files"
+        type: choice
+        options:
+          - refresh
+          - compare
+        default: refresh
+      provider:
+        description: "Provider to use when refreshing"
+        type: choice
+        options:
+          - football-data
+          - tubet
+        default: football-data
 
 permissions:
   contents: write
@@ -23,7 +38,17 @@ jobs:
       - name: Refresh slate and history
         env:
           FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
-        run: node scripts/refresh-matches.mjs
+          TUBET_API_BASE_URL: ${{ vars.TUBET_API_BASE_URL }}
+          TUBET_LEAGUE_ID: ${{ vars.TUBET_LEAGUE_ID }}
+          TUBET_CUTOVER_APPROVED: ${{ vars.TUBET_CUTOVER_APPROVED }}
+          MATCH_DATA_PROVIDER: ${{ github.event.inputs.provider || 'football-data' }}
+          MATCH_DATA_MODE: ${{ github.event.inputs.mode || 'refresh' }}
+        run: |
+          if [ "$MATCH_DATA_PROVIDER" = "tubet" ] && [ "$MATCH_DATA_MODE" = "refresh" ] && [ "$TUBET_CUTOVER_APPROVED" != "true" ]; then
+            echo "::error::Tubet refresh is disabled until TUBET_CUTOVER_APPROVED is set to true after feed comparison."
+            exit 1
+          fi
+          node scripts/refresh-matches.mjs
 
       - name: Commit data changes
         run: |

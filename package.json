@@ -11,6 +11,7 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "data:refresh": "node scripts/refresh-matches.mjs",
+    "data:test": "node --test scripts/refresh-matches.test.mjs",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },
@@ -20,6 +21,7 @@
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@e965/xlsx": "^0.20.3",
     "@supabase/supabase-js": "^2.98.0",
     "canvas-confetti": "^1.9.3",
     "date-fns": "^2.30.0",

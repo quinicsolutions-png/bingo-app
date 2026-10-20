@@ -52,7 +52,7 @@ npm i -g @aspect-build/aspect-cli
 
 Bingo uses the **Dixon-Coles model** (1994), the gold standard for football prediction:
 
-1. **Data Collection**: Match data from football-data.org (free API)
+1. **Data Collection**: Match data is currently refreshed from football-data.org.
 2. **Feature Engineering**: Form, H2H, stats, context
 3. **Dixon-Coles Model**: Bivariate Poisson distribution with correlation
 4. **Output**: Probabilities + confidence scores
@@ -69,7 +69,7 @@ Bingo uses the **Dixon-Coles model** (1994), the gold standard for football pred
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
 - **Build Tool**: Vite
 - **Hosting**: GitHub Pages (free)
-- **Data**: football-data.org (free tier)
+- **Current data provider**: football-data.org; Tubet API integration is available for comparison but is not active by default.
 - **Model**: Dixon-Coles + Poisson (open source)
 - **PWA**: Service Worker + Web App Manifest
 
@@ -103,9 +103,43 @@ npm run dev
 # Build for production
 npm run build
 
+# Test provider mapping and migration safeguards
+npm run data:test
+
 # Preview production build
 npm run preview
 ```
+
+### Evaluating the Tubet API
+
+The scheduled refresh continues to use football-data.org by default. Tubet documents
+EPL fixtures at `/api/v1/league/:id/fixtures`, but its public README does not establish
+a current hosted API URL or score-freshness guarantee. Do not switch production until
+those have been verified and EPL-only coverage is accepted.
+
+To compare feeds without writing or publishing data, add `TUBET_API_BASE_URL` and
+`TUBET_LEAGUE_ID` as repository Actions variables and retain `FOOTBALL_DATA_TOKEN` as
+an Actions secret. Run **Refresh match data** manually with provider `tubet` and mode
+`compare`; the workflow reports fixture overlap and score availability and does not
+modify the slate or history files.
+
+Only after reviewing comparison results, set the Actions variable
+`TUBET_CUTOVER_APPROVED` to `true`. A manual Tubet refresh is blocked unless this
+explicit approval is present. Scheduled runs remain on football-data.org. Tubet
+fixtures without scores are never used to settle predictions, and invalid or empty
+feeds fail before publishing.
+
+### Uploading fixtures and bookmaker odds
+
+Open **Settings → Upload fixtures & odds** to import bookmaker exports from Betika,
+SportPesa, SportyBet, or another source. CSV, TSV, Excel (`.xlsx`/`.xls`), and JSON
+files are supported. The importer previews and validates rows before saving and lets
+you map non-standard column names to home team, away team, kickoff, competition, and
+1/X/2 odds. Odds must be decimal prices greater than 1; missing odds are allowed.
+
+Uploaded entries are stored only in the current browser/device and appear with the
+published slate in Predictions. They do not replace the live provider, synchronize
+between devices, or change model predictions. Uploads are snapshots, not live odds.
 
 ## 📦 Deployment
 
@@ -183,12 +217,12 @@ Contributions welcome! Areas for improvement:
 ## 📞 Support
 
 - **Issues**: GitHub Issues
-- **Data Provider**: [football-data.org](https://www.football-data.org/)
+- **Active data provider**: [football-data.org](https://www.football-data.org/); [Tubet API](https://github.com/ongair/tubet_api) is staged for comparison only.
 - **Model Reference**: [Dixon-Coles Model](https://github.com/DOsinga/football_predictions)
 
 ## 🙏 Credits
 
-- **Data**: football-data.org (free tier)
+- **Data**: football-data.org (current); Tubet API (EPL-only evaluation, not yet active)
 - **Model**: Dixon-Coles + Poisson (open source)
 - **Icons**: Font Awesome
 - **Framework**: React + Vite

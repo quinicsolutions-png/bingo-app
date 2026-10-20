@@ -13,6 +13,16 @@ export interface Match {
   season: string;
   prediction: Prediction | null;
   result: MatchResult | null;
+  odds?: MatchOdds;
+  dataSource?: string;
+}
+
+export interface MatchOdds {
+  home?: number;
+  draw?: number;
+  away?: number;
+  source: string;
+  updatedAt: string;
 }
 
 export interface Prediction {

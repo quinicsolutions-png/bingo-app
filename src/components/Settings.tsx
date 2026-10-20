@@ -1,5 +1,6 @@
 import { useBingoData, publicAsset } from '../data/api';
 import { APP_VERSION } from '../data/matchData';
+import { ManualImport } from './ManualImport';
 
 export function Settings() {
   const { data } = useBingoData();
@@ -10,6 +11,8 @@ export function Settings() {
         <h2 className="text-lg font-bold text-white">Settings & Info</h2>
         <p className="text-xs text-gray-400">App information and preferences</p>
       </div>
+
+      <ManualImport />
 
       {/* App Info */}
       <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
@@ -24,8 +27,9 @@ export function Settings() {
         <div className="space-y-2">
           <InfoRow label="Model" value="Dixon-Coles + Poisson" />
           <InfoRow label="Last Updated" value={updated} />
-          <InfoRow label="Data Source" value="football-data.org" />
-          <InfoRow label="Scores" value="Delayed on the free plan" />
+          <InfoRow label="Active Data Source" value="football-data.org" />
+          <InfoRow label="Tubet API" value="EPL evaluation only" />
+          <InfoRow label="Scores" value="Provider-dependent" />
           <InfoRow label="License" value="MIT (Open Source)" />
         </div>
       </div>
@@ -40,7 +44,7 @@ export function Settings() {
             </div>
             <div>
               <p className="text-xs font-medium text-white">Data Collection</p>
-              <p className="text-[10px] text-gray-400">Match data from football-data.org. Scores on the free plan are delayed.</p>
+              <p className="text-[10px] text-gray-400">Match data currently comes from football-data.org. Tubet is being evaluated for EPL fixtures and is not active.</p>
             </div>
           </div>
           <div className="flex items-start gap-2">
@@ -96,7 +100,13 @@ export function Settings() {
           </a>
           <a href="https://www.football-data.org/" className="flex items-center justify-between py-2 border-b border-gray-800">
             <span className="text-xs text-gray-300">
-              <i className="fa-solid fa-database mr-2 text-gray-500"></i>Data Provider
+              <i className="fa-solid fa-database mr-2 text-gray-500"></i>Active Data Provider
+            </span>
+            <i className="fa-solid fa-arrow-right text-[10px] text-gray-500"></i>
+          </a>
+          <a href="https://github.com/ongair/tubet_api" className="flex items-center justify-between py-2 border-b border-gray-800">
+            <span className="text-xs text-gray-300">
+              <i className="fa-solid fa-database mr-2 text-gray-500"></i>Tubet API (evaluation)
             </span>
             <i className="fa-solid fa-arrow-right text-[10px] text-gray-500"></i>
           </a>

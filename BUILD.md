@@ -1,5 +1,7 @@
 
+
 # Bingo APK - Build Complete ✓
+
 
 ## What Was Built
 
@@ -102,10 +104,12 @@ bubblewrap build
 - Confidence scoring (HIGH/MEDIUM/DRAW_ALERT/LOW)
 
 **Data Source:**
-- football-data.org (free tier)
-- 10 requests/minute limit
-- 12 major competitions
-- Historical data for training
+- football-data.org is the active provider for scheduled production refreshes.
+- Tubet API is an optional EPL-only source available in compare mode; it is not
+  enabled for production by default because a hosted URL and data freshness must
+  first be verified.
+- Tubet feed comparisons do not write slate/history data. Empty or invalid
+  provider responses fail before publishing.
 
 ### Performance
 
@@ -231,10 +235,12 @@ Open: http://localhost:5173
 
 ### For Production Use
 
-1. **Connect Real API:**
-   - Sign up at football-data.org
-   - Get free API key
-   - Update `src/data/api.ts`
+1. **Refresh match data:**
+   - The scheduled workflow currently uses football-data.org with `FOOTBALL_DATA_TOKEN`.
+   - Use the workflow's Tubet compare mode before any cutover; configure the
+     `TUBET_API_BASE_URL` and `TUBET_LEAGUE_ID` Actions variables.
+   - Tubet is documented as EPL-only; verify the hosted endpoint and score freshness
+     before setting `TUBET_CUTOVER_APPROVED=true`.
 
 2. **Add Push Notifications:**
    - Implement Firebase Cloud Messaging
@@ -266,7 +272,7 @@ Open: http://localhost:5173
 
 - **Documentation**: See README.md
 - **Issues**: GitHub Issues
-- **Data API**: football-data.org
+- **Data API**: football-data.org (active); Tubet API (staged, EPL-only)
 - **Model**: Dixon-Coles (open source)
 
 ## License

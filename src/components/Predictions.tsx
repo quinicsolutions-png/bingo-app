@@ -70,7 +70,8 @@ export function Predictions() {
 
 function MatchCard({ match, expanded, onToggle }: { match: Match; expanded: boolean; onToggle: () => void }) {
   const pred = match.prediction;
-  if (!pred) return null;
+  const odds = match.odds;
+  if (!pred && !odds) return null;
 
   const kickoffDate = new Date(match.kickoff);
   const timeStr = kickoffDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -89,55 +90,92 @@ function MatchCard({ match, expanded, onToggle }: { match: Match; expanded: bool
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="text-right">
-              <p className="text-xs font-bold text-emerald-400">
-                {pred.pick === '1' ? match.homeShort : pred.pick === '2' ? match.awayShort : 'Draw'}
-              </p>
-              <p className="text-[9px] text-gray-500">{Math.round(pred.confidenceScore * 100)}%</p>
-            </div>
-            <ConfidencePill confidence={pred.confidence} />
+            {pred ? (
+              <>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-emerald-400">
+                    {pred.pick === '1' ? match.homeShort : pred.pick === '2' ? match.awayShort : 'Draw'}
+                  </p>
+                  <p className="text-[9px] text-gray-500">{Math.round(pred.confidenceScore * 100)}%</p>
+                </div>
+                <ConfidencePill confidence={pred.confidence} />
+              </>
+            ) : (
+              <span className="text-[9px] text-gray-500">Fixture</span>
+            )}
             <i className={`fa-solid fa-chevron-down text-gray-500 text-[10px] transition-transform ${expanded ? 'rotate-180' : ''}`}></i>
           </div>
         </div>
 
-        {/* Probability Bar */}
-        <div className="mt-2 flex items-center gap-0.5 h-1.5 rounded-full overflow-hidden bg-gray-800">
-          <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${pred.home * 100}%` }}></div>
-          <div className="h-full bg-gray-500" style={{ width: `${pred.draw * 100}%` }}></div>
-          <div className="h-full bg-cyan-500 rounded-r-full" style={{ width: `${pred.away * 100}%` }}></div>
-        </div>
-        <div className="flex justify-between mt-0.5">
-          <span className="text-[8px] text-gray-500">{match.homeShort} {Math.round(pred.home * 100)}%</span>
-          <span className="text-[8px] text-gray-500">Draw {Math.round(pred.draw * 100)}%</span>
-          <span className="text-[8px] text-gray-500">{match.awayShort} {Math.round(pred.away * 100)}%</span>
-        </div>
+        {pred && (
+          <>
+            <div className="mt-2 flex items-center gap-0.5 h-1.5 rounded-full overflow-hidden bg-gray-800">
+              <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${pred.home * 100}%` }}></div>
+              <div className="h-full bg-gray-500" style={{ width: `${pred.draw * 100}%` }}></div>
+              <div className="h-full bg-cyan-500 rounded-r-full" style={{ width: `${pred.away * 100}%` }}></div>
+            </div>
+            <div className="flex justify-between mt-0.5">
+              <span className="text-[8px] text-gray-500">{match.homeShort} {Math.round(pred.home * 100)}%</span>
+              <span className="text-[8px] text-gray-500">Draw {Math.round(pred.draw * 100)}%</span>
+              <span className="text-[8px] text-gray-500">{match.awayShort} {Math.round(pred.away * 100)}%</span>
+            </div>
+          </>
+        )}
       </button>
 
       {/* Expanded Details */}
       {expanded && (
         <div className="border-t border-gray-800 p-3 bg-gray-800/20">
           <div className="space-y-2">
-            <div>
-              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Model Reasoning</p>
-              <p className="text-[10px] text-gray-300 leading-relaxed">{pred.reasoning}</p>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-gray-800/50 rounded p-2 text-center">
-                <p className="text-[9px] text-gray-500">Algorithm</p>
-                <p className="text-[10px] text-emerald-400 font-bold">{pred.model.split(' ')[0]}</p>
+            {pred && (
+              <>
+                <div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Model Reasoning</p>
+                  <p className="text-[10px] text-gray-300 leading-relaxed">{pred.reasoning}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-gray-800/50 rounded p-2 text-center">
+                    <p className="text-[9px] text-gray-500">Algorithm</p>
+                    <p className="text-[10px] text-emerald-400 font-bold">{pred.model.split(' ')[0]}</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded p-2 text-center">
+                    <p className="text-[9px] text-gray-500">Confidence</p>
+                    <p className="text-[10px] text-emerald-400 font-bold">{Math.round(pred.confidenceScore * 100)}%</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded p-2 text-center">
+                    <p className="text-[9px] text-gray-500">Pick</p>
+                    <p className="text-[10px] text-emerald-400 font-bold">{pred.pick === '1' ? 'Home' : pred.pick === '2' ? 'Away' : 'Draw'}</p>
+                  </div>
+                </div>
+              </>
+            )}
+            {odds && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                  Decimal odds · {odds.source}
+                </p>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <OddsCell label={match.homeShort} value={odds.home} />
+                  <OddsCell label="Draw" value={odds.draw} />
+                  <OddsCell label={match.awayShort} value={odds.away} />
+                </div>
+                <p className="text-[9px] text-gray-500 mt-2">
+                  Uploaded {new Date(odds.updatedAt).toLocaleString()}
+                </p>
               </div>
-              <div className="bg-gray-800/50 rounded p-2 text-center">
-                <p className="text-[9px] text-gray-500">Confidence</p>
-                <p className="text-[10px] text-emerald-400 font-bold">{Math.round(pred.confidenceScore * 100)}%</p>
-              </div>
-              <div className="bg-gray-800/50 rounded p-2 text-center">
-                <p className="text-[9px] text-gray-500">Pick</p>
-                <p className="text-[10px] text-emerald-400 font-bold">{pred.pick === '1' ? 'Home' : pred.pick === '2' ? 'Away' : 'Draw'}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function OddsCell({ label, value }: { label: string; value?: number }) {
+  return (
+    <div className="bg-gray-800/50 rounded p-2">
+      <p className="text-[9px] text-gray-500">{label}</p>
+      <p className="text-xs text-white font-bold">{value == null ? '—' : value.toFixed(2)}</p>
     </div>
   );
 }

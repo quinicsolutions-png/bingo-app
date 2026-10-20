@@ -105,15 +105,23 @@ export function Dashboard({ onNavigate }: Props) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="text-xs font-bold text-emerald-400">
-                    {match.prediction?.pick === '1' ? match.homeShort : match.prediction?.pick === '2' ? match.awayShort : 'Draw'}
-                  </p>
-                  <p className="text-[9px] text-gray-500">
-                    {Math.round((match.prediction?.confidenceScore || 0) * 100)}%
-                  </p>
-                </div>
-                <ConfidenceBadge confidence={match.prediction?.confidence || 'LOW'} />
+                {match.prediction ? (
+                  <>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-emerald-400">
+                        {match.prediction.pick === '1' ? match.homeShort : match.prediction.pick === '2' ? match.awayShort : 'Draw'}
+                      </p>
+                      <p className="text-[9px] text-gray-500">
+                        {Math.round(match.prediction.confidenceScore * 100)}%
+                      </p>
+                    </div>
+                    <ConfidenceBadge confidence={match.prediction.confidence} />
+                  </>
+                ) : (
+                  <span className="text-[9px] text-gray-500">
+                    {match.odds ? `${match.dataSource ?? 'Uploaded'} odds` : 'Uploaded fixture'}
+                  </span>
+                )}
               </div>
             </div>
           ))}
