@@ -30,7 +30,7 @@ If you need an actual APK file:
 
 ```bash
 # Install Bubblewrap (Google's PWA-to-APK tool)
-npm i -g @aspect-build/aspect-cli
+npm i -g @bubblewrap/cli
 
 # Or use PWABuilder
 # Visit: https://www.pwabuilder.com/
@@ -39,8 +39,8 @@ npm i -g @aspect-build/aspect-cli
 
 ## 🚀 Features
 
-- **13-match predictions** using Dixon-Coles + Poisson model
-- **67% accuracy** tracked publicly
+- **13-match predictions** using a Dixon-Coles + Poisson model with league-standings strengths
+- **Accuracy tracked publicly** — every settled pick lands in the in-app History record
 - **Offline support** - works without internet
 - **Installable** - behaves like native Android app
 - **Free forever** - no ads, no subscriptions
@@ -50,12 +50,20 @@ npm i -g @aspect-build/aspect-cli
 
 ### Prediction Model
 
-Bingo uses the **Dixon-Coles model** (1994), the gold standard for football prediction:
+Predictions come from a real **Dixon-Coles + Poisson** pipeline
+(`src/data/predict.mjs`, shared by the app and the refresh Action):
 
-1. **Data Collection**: Match data is currently refreshed from football-data.org.
-2. **Feature Engineering**: Form, H2H, stats, context
-3. **Dixon-Coles Model**: Bivariate Poisson distribution with correlation
-4. **Output**: Probabilities + confidence scores
+1. **Data Collection**: fixtures and league standings are fetched from
+   football-data.org by the scheduled refresh Action
+   (`scripts/refresh-matches.mjs`)
+2. **Strength Estimation**: each team gets attack/defence multipliers from
+   goals scored and conceded per game — home and away separately — shrunk
+   toward the league mean while samples are small
+3. **Score Matrix**: expected goals feed a Poisson score grid with the
+   Dixon-Coles low-score correction, summed into 1/X/2 probabilities
+4. **Fallback**: when standings are unavailable (e.g. early cup rounds or
+   the Tubet feed), the model uses a neutral league-average prior plus
+   home advantage — it never invents team strength
 
 ### Confidence Tiers
 
@@ -75,10 +83,10 @@ Bingo uses the **Dixon-Coles model** (1994), the gold standard for football pred
 
 ## 📊 Performance
 
-- **Overall Accuracy**: 66.9%
-- **High Confidence Accuracy**: 74.2%
-- **Weeks Tracked**: 34
-- **Total Predictions**: 442
+Accuracy is computed live from the settled weeks in `public/data/history.json`
+and shown on the Dashboard and History screens — nothing is hand-reported.
+The public record in this repository starts from November 2026; earlier
+figures from pre-reset incarnations of the project are not carried over.
 
 ## 🎯 Screens
 
@@ -103,12 +111,20 @@ npm run dev
 # Build for production
 npm run build
 
-# Test provider mapping and migration safeguards
+# Test the model and provider mapping safeguards
 npm run data:test
 
 # Preview production build
 npm run preview
 ```
+
+### Required secret
+
+The refresh Action needs a football-data.org API token. Add it as the
+**`FOOTBALL_DATA_TOKEN`** secret under **Settings → Secrets and variables →
+Actions** (a free API key from [football-data.org](https://www.football-data.org/)
+works). Without it the scheduled refresh fails without publishing anything,
+and the workflow opens a "Match data refresh is failing" issue to alert you.
 
 ### Evaluating the Tubet API
 
@@ -154,8 +170,20 @@ npm run android:apk
 ```
 
 The debug APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`.
-It is signed with the debug key for local installation and testing; create a
-release signing configuration before distributing an APK publicly.
+It is signed with the debug key — fine for local testing only. To distribute
+(public APK or Play Store), create a release keystore and signing config:
+
+```bash
+# One-time: generate a keystore (keep it and its passwords safe and private;
+# losing it means you can never update the same Play Store listing)
+keytool -genkey -v -keystore bingo-release.keystore -alias bingo \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Then add a `signingConfigs.release` block to `android/app/build.gradle`
+reading the keystore path and passwords from a local
+`android/keystore.properties` file (never committed), and run
+`./gradlew assembleRelease` from `android/`.
 
 ### GitHub Pages (Recommended)
 
@@ -194,7 +222,9 @@ Replace `public/icon.svg` with your own SVG icon (512x512 recommended).
 
 ### Modify Prediction Model
 
-Edit `src/data/matchData.ts` to adjust the Dixon-Coles parameters.
+Edit `src/data/predict.mjs` (probability model) and the strength estimation in
+`scripts/refresh-matches.mjs` (`computeLeagueStrengths`). Tests live in
+`scripts/predict.test.mjs` — run `npm run data:test` after changes.
 
 ## 📄 License
 
@@ -230,4 +260,3 @@ Contributions welcome! Areas for improvement:
 ---
 
 **Built with ❤️ for football fans worldwide**
-# bingo-football-predictions
