@@ -71,7 +71,6 @@ export function Predictions() {
 function MatchCard({ match, expanded, onToggle }: { match: Match; expanded: boolean; onToggle: () => void }) {
   const pred = match.prediction;
   const odds = match.odds;
-  if (!pred && !odds) return null;
 
   const kickoffDate = new Date(match.kickoff);
   const timeStr = kickoffDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -151,7 +150,7 @@ function MatchCard({ match, expanded, onToggle }: { match: Match; expanded: bool
             )}
             {odds && (
               <div>
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                   Decimal odds · {odds.source}
                 </p>
                 <div className="grid grid-cols-3 gap-2 text-center">
@@ -159,10 +158,15 @@ function MatchCard({ match, expanded, onToggle }: { match: Match; expanded: bool
                   <OddsCell label="Draw" value={odds.draw} />
                   <OddsCell label={match.awayShort} value={odds.away} />
                 </div>
-                <p className="text-[9px] text-gray-500 mt-2">
+                <p className="text-[11px] text-gray-500 mt-2">
                   Uploaded {new Date(odds.updatedAt).toLocaleString()}
                 </p>
               </div>
+            )}
+            {!pred && !odds && (
+              <p className="text-[11px] text-gray-400">
+                Manually uploaded fixture — no odds provided.
+              </p>
             )}
           </div>
         </div>

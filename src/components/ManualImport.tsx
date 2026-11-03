@@ -1,5 +1,11 @@
-import { useMemo, useState } from "react";
-import { saveManualMatches } from "../data/api";
+import { useEffect, useMemo, useState } from "react";
+import {
+  MANUAL_MATCHES_EVENT,
+  saveManualMatches,
+  getManualMatches,
+  removeManualMatches,
+  clearManualMatches,
+} from "../data/api";
 import {
   defaultColumnMapping,
   IMPORT_FIELDS,
@@ -10,6 +16,7 @@ import {
   type ImportField,
   type ImportRow,
 } from "../data/manualImport";
+import type { Match } from "../data/matchData";
 
 export function ManualImport() {
   const [rows, setRows] = useState<ImportRow[]>([]);
@@ -151,12 +158,71 @@ export function ManualImport() {
         </>
       )}
 
-      {error && <p role="alert" className="text-[10px] text-red-400">{error}</p>}
-      {success && <p role="status" className="text-[10px] text-emerald-400">{success}</p>}
-      <p className="text-[9px] text-gray-500 leading-relaxed">
+      {error && <p role="alert" className="text-[11px] text-red-400">{error}</p>}
+      {success && <p role="status" className="text-[11px] text-emerald-400">{success}</p>}
+      <p className="text-[10px] text-gray-500 leading-relaxed">
         Fixtures and odds remain in this browser/device. Odds are treated as manually uploaded decimal prices,
         not live data, and will not alter the prediction model.
       </p>
+
+      <ManageUploads />
     </section>
+  );
+}
+
+function ManageUploads() {
+  const [fixtures, setFixtures] = useState<Match[]>([]);
+
+  useEffect(() => {
+    const refresh = () => setFixtures(getManualMatches());
+    refresh();
+    window.addEventListener(MANUAL_MATCHES_EVENT, refresh);
+    return () => window.removeEventListener(MANUAL_MATCHES_EVENT, refresh);
+  }, []);
+
+  if (fixtures.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-gray-700/60 bg-gray-800/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold text-white">
+          On this device ({fixtures.length})
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm(`Remove all ${fixtures.length} uploaded fixture${fixtures.length === 1 ? "" : "s"}?`)) {
+              clearManualMatches();
+            }
+          }}
+          className="text-[10px] font-medium text-red-400 hover:text-red-300"
+        >
+          Remove all
+        </button>
+      </div>
+      <ul className="divide-y divide-gray-700/40">
+        {fixtures.map((match) => (
+          <li key={`${match.kickoff}|${match.homeTeam}|${match.awayTeam}`} className="flex items-center justify-between gap-2 py-1.5">
+            <div className="min-w-0">
+              <p className="truncate text-[11px] text-gray-200">
+                {match.homeTeam} vs {match.awayTeam}
+              </p>
+              <p className="text-[10px] text-gray-500">
+                {new Date(match.kickoff).toLocaleString()}
+                {match.odds?.source ? ` · ${match.odds.source}` : ""}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label={`Remove ${match.homeTeam} vs ${match.awayTeam}`}
+              onClick={() => removeManualMatches([match])}
+              className="flex-shrink-0 rounded-md px-2 py-1 text-[11px] text-gray-400 hover:bg-gray-700/60 hover:text-red-400"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

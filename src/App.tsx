@@ -8,8 +8,17 @@ import { publicAsset, useBingoData } from './data/api';
 
 type Page = 'dashboard' | 'predictions' | 'history' | 'settings';
 
+const PAGES: Page[] = ['dashboard', 'predictions', 'history', 'settings'];
+const INSTALL_DISMISSED_KEY = 'bingo-install-dismissed';
+
+function initialPage(): Page {
+  // Manifest shortcuts and external links address tabs as ?tab=predictions etc.
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  return PAGES.includes(tab as Page) ? (tab as Page) : 'dashboard';
+}
+
 export default function App() {
-  const [page, setPage] = useState<Page>('dashboard');
+  const [page, setPage] = useState<Page>(initialPage);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const { data } = useBingoData();
   const live = data?.week?.matches.some((match) => match.status === 'live') ?? false;
@@ -17,11 +26,14 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // Listen for install prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
+    // Listen for install prompt, unless the user dismissed it earlier
+    const dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY) === '1';
+    const beforeinstall = (e: Event) => {
       e.preventDefault();
-      setInstallPrompt(e);
-    });
+      if (!dismissed) setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', beforeinstall);
+    return () => window.removeEventListener('beforeinstallprompt', beforeinstall);
   }, []);
 
   const handleInstall = async () => {
@@ -30,6 +42,15 @@ export default function App() {
     const { outcome } = await installPrompt.userChoice;
     if (outcome === 'accepted') {
       setInstallPrompt(null);
+    }
+  };
+
+  const handleDismissInstall = () => {
+    setInstallPrompt(null);
+    try {
+      localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
+    } catch {
+      // Storage unavailable — dismissal just won't persist.
     }
   };
 
@@ -92,7 +113,7 @@ export default function App() {
           </nav>
 
         {/* Install Prompt */}
-        {installPrompt && <InstallPrompt onInstall={handleInstall} />}
+        {installPrompt && <InstallPrompt onInstall={handleInstall} onDismiss={handleDismissInstall} />}
       </>
     </div>
   );

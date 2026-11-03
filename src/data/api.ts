@@ -4,7 +4,7 @@ import type { HistoryFile, JackpotWeek, Match, SlateFile } from "./matchData";
 
 const CACHE_KEY = "bingo-data-v1";
 const MANUAL_MATCHES_KEY = "bingo-manual-matches-v1";
-const MANUAL_MATCHES_EVENT = "bingo-manual-matches-updated";
+export const MANUAL_MATCHES_EVENT = "bingo-manual-matches-updated";
 
 export interface BingoData {
   week: JackpotWeek | null;
@@ -53,6 +53,22 @@ export function saveManualMatches(matches: Match[]): void {
   } catch (error) {
     throw new Error(`Could not save uploaded fixtures on this device: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+export function getManualMatches(): Match[] {
+  return readManualMatches();
+}
+
+export function removeManualMatches(matches: Match[]): void {
+  const removed = new Set(matches.map(fixtureKey));
+  const remaining = readManualMatches().filter((match) => !removed.has(fixtureKey(match)));
+  localStorage.setItem(MANUAL_MATCHES_KEY, JSON.stringify(remaining));
+  window.dispatchEvent(new Event(MANUAL_MATCHES_EVENT));
+}
+
+export function clearManualMatches(): void {
+  localStorage.removeItem(MANUAL_MATCHES_KEY);
+  window.dispatchEvent(new Event(MANUAL_MATCHES_EVENT));
 }
 
 function withManualMatches(data: BingoData): BingoData {

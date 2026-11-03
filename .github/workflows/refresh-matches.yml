@@ -60,7 +60,7 @@ jobs:
             echo "No data changes"
             exit 0
           fi
-          git commit -m "Refresh match slate [skip ci]"
+          git commit -m "Refresh match slate"
           git push
 
       - name: Warn when the slate is still empty
