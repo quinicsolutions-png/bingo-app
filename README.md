@@ -254,7 +254,7 @@ Contributions welcome! Areas for improvement:
 
 - **Data**: football-data.org (current); Tubet API (EPL-only evaluation, not yet active)
 - **Model**: Dixon-Coles + Poisson (open source)
-- **Icons**: Font Awesome
+- **Icons**: Lucide (inline SVG)
 - **Framework**: React + Vite
 
 ---

@@ -145,6 +145,17 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 let inflight: Promise<BingoData> | null = null;
 let resolved: BingoData | null = null;
+const listeners = new Set<() => void>();
+
+function notifyBingoData() {
+  for (const listener of listeners) listener();
+}
+
+/** Subscribe to data refreshes; returns an unsubscribe function. */
+export function subscribeBingoData(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 export function loadBingoData(): Promise<BingoData> {
   if (resolved) return Promise.resolve(resolved);
@@ -155,6 +166,15 @@ export function loadBingoData(): Promise<BingoData> {
     });
   }
   return inflight;
+}
+
+/** Force a network refetch (pull-to-refresh, "check for updates"). */
+export async function refreshBingoData(): Promise<BingoData> {
+  inflight = null;
+  resolved = null;
+  const data = await loadBingoData();
+  notifyBingoData();
+  return data;
 }
 
 async function fetchBingoData(): Promise<BingoData> {
@@ -187,13 +207,18 @@ export function useBingoData() {
       setData(withManualMatches(next));
       setStatus("ready");
     });
+    const syncFromRefresh = () => {
+      if (resolved) setData(withManualMatches(resolved));
+    };
     const updateManualMatches = () => {
       setData((current) => current ? withManualMatches(current) : current);
     };
     window.addEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
+    const unsubscribe = subscribeBingoData(syncFromRefresh);
     return () => {
       cancelled = true;
       window.removeEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
+      unsubscribe();
     };
   }, []);
 

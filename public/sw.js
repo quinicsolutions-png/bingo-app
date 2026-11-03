@@ -3,17 +3,16 @@
 // Versioning: bump CACHE_NAME whenever the app shell changes so clients
 // pick up new builds; hashed Vite assets and the navigations strategy below
 // make stale-shell bugs unlikely, but the bump is the safety net.
-const CACHE_NAME = 'bingo-v3';
+const CACHE_NAME = 'bingo-v4';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
-  './vendor/fontawesome/css/all.min.css',
-  './vendor/fontawesome/webfonts/fa-solid-900.woff2',
-  './vendor/fontawesome/webfonts/fa-regular-400.woff2',
-  './vendor/fontawesome/webfonts/fa-brands-400.woff2',
-  './vendor/fontawesome/webfonts/fa-v4compatibility.woff2'
+  './icon-192.png',
+  './icon-512.png',
+  './icon-512-maskable.png',
+  './icon-180.png'
 ];
 
 // Install event - cache essential files
