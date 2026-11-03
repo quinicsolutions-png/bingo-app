@@ -53,7 +53,7 @@ export function Settings() {
             </div>
             <div>
               <p className="text-xs font-medium text-white">AI Analysis</p>
-              <p className="text-[10px] text-gray-400">Dixon-Coles model predicts match outcomes</p>
+              <p className="text-[10px] text-gray-400">Dixon-Coles + Poisson model with team strengths derived from league standings (goals scored and conceded, home and away)</p>
             </div>
           </div>
           <div className="flex items-start gap-2">
@@ -92,7 +92,7 @@ export function Settings() {
       <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
         <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Links</h3>
         <div className="space-y-2">
-          <a href="https://github.com" className="flex items-center justify-between py-2 border-b border-gray-800">
+          <a href="https://github.com/quinicsolutions-png/bingo-app" target="_blank" rel="noreferrer" className="flex items-center justify-between py-2 border-b border-gray-800">
             <span className="text-xs text-gray-300">
               <i className="fa-brands fa-github mr-2 text-gray-500"></i>Source Code
             </span>
