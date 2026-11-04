@@ -4,7 +4,7 @@
 
 ![Bingo](public/icon.svg)
 
-[![Tests](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/tests.yml/badge.svg)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/tests.yml)
+[![Tests](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/tests.yml?query=branch%3Amain)
 [![Deploy GitHub Pages](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/pages.yml/badge.svg)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/pages.yml)
 [![Refresh match data](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/refresh-matches.yml/badge.svg)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/refresh-matches.yml)
 
