@@ -4,6 +4,9 @@
 
 ![Bingo](public/icon.svg)
 
+[![Deploy GitHub Pages](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/pages.yml/badge.svg)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/pages.yml)
+[![Refresh match data](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/refresh-matches.yml/badge.svg)](https://github.com/quinicsolutions-png/bingo-app/actions/workflows/refresh-matches.yml)
+
 ## 📱 Install as APK (Android)
 
 Bingo is a Progressive Web App (PWA) that can be installed on Android devices like a native app.
