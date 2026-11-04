@@ -5,8 +5,13 @@ build/
 *.log
 .idea/
 .cursor/
+.vscode/
 dist.tar.gz
 android/.gradle/
 android/local.properties
 android/build/
 android/app/build/
+.env
+.env.local
+*.keystore
+*.jks

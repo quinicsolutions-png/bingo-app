@@ -63,4 +63,19 @@
   .animate-slide-up {
     animation: slide-up 0.3s ease-out;
   }
+
+  /* Animated expand/collapse: the grid-rows 0fr→1fr trick. Children must
+     keep overflow hidden and min-height 0 so the row can collapse. */
+  .expandable {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+  }
+  .expandable.open {
+    grid-template-rows: 1fr;
+  }
+  .expandable > * {
+    overflow: hidden;
+    min-height: 0;
+  }
 }

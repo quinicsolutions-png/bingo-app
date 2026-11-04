@@ -4,7 +4,7 @@ import type { HistoryFile, JackpotWeek, Match, SlateFile } from "./matchData";
 
 const CACHE_KEY = "bingo-data-v1";
 const MANUAL_MATCHES_KEY = "bingo-manual-matches-v1";
-const MANUAL_MATCHES_EVENT = "bingo-manual-matches-updated";
+export const MANUAL_MATCHES_EVENT = "bingo-manual-matches-updated";
 
 export interface BingoData {
   week: JackpotWeek | null;
@@ -53,6 +53,22 @@ export function saveManualMatches(matches: Match[]): void {
   } catch (error) {
     throw new Error(`Could not save uploaded fixtures on this device: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+export function getManualMatches(): Match[] {
+  return readManualMatches();
+}
+
+export function removeManualMatches(matches: Match[]): void {
+  const removed = new Set(matches.map(fixtureKey));
+  const remaining = readManualMatches().filter((match) => !removed.has(fixtureKey(match)));
+  localStorage.setItem(MANUAL_MATCHES_KEY, JSON.stringify(remaining));
+  window.dispatchEvent(new Event(MANUAL_MATCHES_EVENT));
+}
+
+export function clearManualMatches(): void {
+  localStorage.removeItem(MANUAL_MATCHES_KEY);
+  window.dispatchEvent(new Event(MANUAL_MATCHES_EVENT));
 }
 
 function withManualMatches(data: BingoData): BingoData {
@@ -129,6 +145,17 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 let inflight: Promise<BingoData> | null = null;
 let resolved: BingoData | null = null;
+const listeners = new Set<() => void>();
+
+function notifyBingoData() {
+  for (const listener of listeners) listener();
+}
+
+/** Subscribe to data refreshes; returns an unsubscribe function. */
+export function subscribeBingoData(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 export function loadBingoData(): Promise<BingoData> {
   if (resolved) return Promise.resolve(resolved);
@@ -139,6 +166,15 @@ export function loadBingoData(): Promise<BingoData> {
     });
   }
   return inflight;
+}
+
+/** Force a network refetch (pull-to-refresh, "check for updates"). */
+export async function refreshBingoData(): Promise<BingoData> {
+  inflight = null;
+  resolved = null;
+  const data = await loadBingoData();
+  notifyBingoData();
+  return data;
 }
 
 async function fetchBingoData(): Promise<BingoData> {
@@ -171,13 +207,18 @@ export function useBingoData() {
       setData(withManualMatches(next));
       setStatus("ready");
     });
+    const syncFromRefresh = () => {
+      if (resolved) setData(withManualMatches(resolved));
+    };
     const updateManualMatches = () => {
       setData((current) => current ? withManualMatches(current) : current);
     };
     window.addEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
+    const unsubscribe = subscribeBingoData(syncFromRefresh);
     return () => {
       cancelled = true;
       window.removeEventListener(MANUAL_MATCHES_EVENT, updateManualMatches);
+      unsubscribe();
     };
   }, []);
 

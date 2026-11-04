@@ -1,7 +1,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { generatePrediction } from "../src/data/predict.mjs";
+import {
+  DEFAULT_LEAGUE_AVG_AWAY_GOALS,
+  DEFAULT_LEAGUE_AVG_HOME_GOALS,
+  generatePrediction,
+} from "../src/data/predict.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SLATE_PATH = join(ROOT, "public/data/slate.json");
@@ -23,12 +27,75 @@ const LEAGUE_ICONS = {
   WC: "🌍",
 };
 
-export function strengthFromName(name) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i += 1) {
-    hash = (hash * 33 + name.charCodeAt(i)) >>> 0;
+function normalizeTeamName(name) {
+  return String(name ?? "").trim().toLowerCase();
+}
+
+function shrinkToMean(multiplier, matchesPlayed) {
+  if (!Number.isFinite(multiplier) || matchesPlayed <= 0) return 1;
+  const weight = matchesPlayed / (matchesPlayed + 6);
+  return 1 + (multiplier - 1) * weight;
+}
+
+/**
+ * Turn a football-data.org v4 standings payload into per-team strength
+ * multipliers (1.0 = league average). Rows with home/away splits use them;
+ * otherwise overall totals are split evenly across venues. Returns null when
+ * the payload has no usable table.
+ */
+export function computeLeagueStrengths(payload) {
+  const groups = Array.isArray(payload?.standings) ? payload.standings : [];
+  const rows = groups.flatMap((group) => (Array.isArray(group?.table) ? group.table : []));
+  if (rows.length === 0) return null;
+
+  const teams = [];
+  for (const row of rows) {
+    const name = row?.team?.name;
+    if (!name) continue;
+    const home = row.home ?? {};
+    const away = row.away ?? {};
+    const overallPlayed = Number(row.playedGames ?? 0);
+    teams.push({
+      name,
+      key: normalizeTeamName(name),
+      rank: Number.isFinite(row.position) ? row.position : null,
+      homePlayed: Number(home.played ?? overallPlayed / 2),
+      awayPlayed: Number(away.played ?? overallPlayed / 2),
+      homeGoalsFor: Number(home.goalsFor ?? (row.goalsFor ?? 0) / 2),
+      homeGoalsAgainst: Number(home.goalsAgainst ?? (row.goalsAgainst ?? 0) / 2),
+      awayGoalsFor: Number(away.goalsFor ?? (row.goalsFor ?? 0) / 2),
+      awayGoalsAgainst: Number(away.goalsAgainst ?? (row.goalsAgainst ?? 0) / 2),
+    });
   }
-  return 0.4 + (hash % 35) / 100;
+  if (teams.length === 0) return null;
+
+  const totalHomeGames = teams.reduce((sum, team) => sum + team.homePlayed, 0);
+  const totalAwayGames = teams.reduce((sum, team) => sum + team.awayPlayed, 0);
+  const avgHomeGoals = totalHomeGames
+    ? teams.reduce((sum, team) => sum + team.homeGoalsFor, 0) / totalHomeGames
+    : DEFAULT_LEAGUE_AVG_HOME_GOALS;
+  const avgAwayGoals = totalAwayGames
+    ? teams.reduce((sum, team) => sum + team.awayGoalsFor, 0) / totalAwayGames
+    : DEFAULT_LEAGUE_AVG_AWAY_GOALS;
+
+  const strengths = new Map();
+  for (const team of teams) {
+    const rate = (forV, played) => (played > 0 ? forV / played : null);
+    const multiplier = (forV, played, baseline) =>
+      played > 0 ? forV / played / baseline : 1;
+    strengths.set(team.key, {
+      rank: team.rank,
+      homeAttack: shrinkToMean(multiplier(team.homeGoalsFor, team.homePlayed, avgHomeGoals), team.homePlayed),
+      homeDefence: shrinkToMean(multiplier(team.homeGoalsAgainst, team.homePlayed, avgAwayGoals), team.homePlayed),
+      awayAttack: shrinkToMean(multiplier(team.awayGoalsFor, team.awayPlayed, avgAwayGoals), team.awayPlayed),
+      awayDefence: shrinkToMean(multiplier(team.awayGoalsAgainst, team.awayPlayed, avgHomeGoals), team.awayPlayed),
+      homeScoringRate: rate(team.homeGoalsFor, team.homePlayed),
+      awayScoringRate: rate(team.awayGoalsFor, team.awayPlayed),
+      homeConcedingRate: rate(team.homeGoalsAgainst, team.homePlayed),
+      awayConcedingRate: rate(team.awayGoalsAgainst, team.awayPlayed),
+    });
+  }
+  return { avgHomeGoals, avgAwayGoals, teams: strengths };
 }
 
 export function mapStatus(apiStatus) {
@@ -90,10 +157,24 @@ export function mapApiMatch(apiMatch, prediction) {
   };
 }
 
-function predictionFor(apiMatch) {
-  const home = strengthFromName(apiMatch.homeTeam?.name || "Home");
-  const away = strengthFromName(apiMatch.awayTeam?.name || "Away");
-  return generatePrediction(home, away);
+function predictionFor(apiMatch, strengthsByCode) {
+  const league = strengthsByCode?.get(apiMatch.competition?.code) ?? null;
+  const home = league?.teams.get(normalizeTeamName(apiMatch.homeTeam?.name)) ?? null;
+  const away = league?.teams.get(normalizeTeamName(apiMatch.awayTeam?.name)) ?? null;
+  return generatePrediction({
+    homeAttack: home?.homeAttack,
+    homeDefence: home?.homeDefence,
+    awayAttack: away?.awayAttack,
+    awayDefence: away?.awayDefence,
+    leagueAvgHomeGoals: league?.avgHomeGoals,
+    leagueAvgAwayGoals: league?.avgAwayGoals,
+    homeRank: home?.rank ?? null,
+    awayRank: away?.rank ?? null,
+    homeScoringRate: home?.homeScoringRate ?? null,
+    awayScoringRate: away?.awayScoringRate ?? null,
+    homeConcedingRate: home?.homeConcedingRate ?? null,
+    awayConcedingRate: away?.awayConcedingRate ?? null,
+  });
 }
 
 export function selectUpcoming(apiMatches, now = new Date()) {
@@ -122,10 +203,10 @@ function weekLabel(matches) {
   return `Slate — ${date}`;
 }
 
-export function createWeek(apiMatches, now = new Date()) {
+export function createWeek(apiMatches, now = new Date(), strengthsByCode = null) {
   const selected = selectUpcoming(apiMatches, now);
   if (selected.length === 0) return null;
-  const matches = selected.map((match) => mapApiMatch(match, predictionFor(match)));
+  const matches = selected.map((match) => mapApiMatch(match, predictionFor(match, strengthsByCode)));
   const cutoffTime = matches.map((match) => match.kickoff).sort()[0];
   return {
     id: `slate-${cutoffTime.slice(0, 10)}-${matches[0].id}`,
@@ -144,7 +225,7 @@ function isClosed(match) {
   return match.status === "finished" && match.result != null;
 }
 
-export function refreshData({ apiMatches, slate, history, now = new Date() }) {
+export function refreshData({ apiMatches, slate, history, now = new Date(), strengths = null }) {
   const byId = new Map(apiMatches.map((match) => [String(match.id), match]));
   const byFixture = new Map(apiMatches.map((match) => [fixtureKey(match), match]));
   const weeks = Array.isArray(history?.weeks) ? history.weeks.map((week) => structuredClone(week)) : [];
@@ -173,10 +254,10 @@ export function refreshData({ apiMatches, slate, history, now = new Date() }) {
         settledAt: now.toISOString(),
       };
       weeks.unshift(settled);
-      week = createWeek(apiMatches, now);
+      week = createWeek(apiMatches, now, strengths);
     }
   } else {
-    week = createWeek(apiMatches, now);
+    week = createWeek(apiMatches, now, strengths);
   }
 
   const nextSlate = { generatedAt: slate?.generatedAt ?? null, week };
@@ -236,6 +317,46 @@ export async function fetchMatches(token, dateFrom, dateTo) {
   }
   const payload = await response.json();
   return Array.isArray(payload.matches) ? payload.matches : [];
+}
+
+export async function fetchStandings(token, competitionCode) {
+  const url = `https://api.football-data.org/v4/competitions/${encodeURIComponent(competitionCode)}/standings`;
+  const response = await fetch(url, { headers: { "X-Auth-Token": token } });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`football-data.org standings ${competitionCode} ${response.status}: ${body.slice(0, 200)}`);
+  }
+  return response.json();
+}
+
+/**
+ * Fetch standings for every competition that appears in the upcoming slate
+ * and index the computed strengths by competition code. Failures degrade to
+ * the league-average prior per competition rather than failing the refresh.
+ */
+async function buildStrengthIndex(token, apiMatches, now) {
+  const codes = [
+    ...new Set(
+      selectUpcoming(apiMatches, now)
+        .map((match) => match.competition?.code)
+        .filter(Boolean),
+    ),
+  ];
+  const index = new Map();
+  await Promise.all(
+    codes.map(async (code) => {
+      try {
+        const strengths = computeLeagueStrengths(await fetchStandings(token, code));
+        if (strengths) index.set(code, strengths);
+        else console.warn(`No usable standings table for ${code}; using league-average prior`);
+      } catch (error) {
+        console.warn(
+          `Standings unavailable for ${code} (${error instanceof Error ? error.message : error}); using league-average prior`,
+        );
+      }
+    }),
+  );
+  return index;
 }
 
 function tubetId(date, home, away) {
@@ -408,7 +529,12 @@ async function main() {
     apiMatches = await fetchMatches(token, dateFrom, dateTo);
   }
   validateMatches(apiMatches, provider === "tubet" ? "Tubet" : "football-data.org");
-  const next = refreshData({ apiMatches, slate, history, now });
+  // Standings-backed strengths need the football-data.org token; Tubet
+  // fixtures fall back to the league-average prior.
+  const strengths = provider === "football-data" && token
+    ? await buildStrengthIndex(token, apiMatches, now)
+    : null;
+  const next = refreshData({ apiMatches, slate, history, now, strengths });
   const slateChanged = writeIfChanged(SLATE_PATH, next.slate);
   const historyChanged = writeIfChanged(HISTORY_PATH, next.history);
   console.log(

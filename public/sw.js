@@ -1,10 +1,18 @@
 // Bingo Service Worker - Offline Support
-const CACHE_NAME = 'bingo-v2';
+//
+// Versioning: bump CACHE_NAME whenever the app shell changes so clients
+// pick up new builds; hashed Vite assets and the navigations strategy below
+// make stale-shell bugs unlikely, but the bump is the safety net.
+const CACHE_NAME = 'bingo-v4';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-512-maskable.png',
+  './icon-180.png'
 ];
 
 // Install event - cache essential files
@@ -18,10 +26,13 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event handling:
+// - data files and page navigations: network first, cache fallback, so
+//   fresh slates and new deploys win whenever the network is available
+// - everything else (hashed assets, fonts): cache first, network fallback
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (url.pathname.includes('/data/')) {
+  if (url.pathname.includes('/data/') || event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request).then((cached) => cached || Response.error()))
     );

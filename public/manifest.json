@@ -1,6 +1,7 @@
 {
   "name": "Bingo - AI Football Predictions",
   "short_name": "Bingo",
+  "id": "./",
   "description": "Free AI-powered football match predictions with Dixon-Coles model",
   "start_url": "./",
   "scope": "./",
@@ -15,6 +16,24 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [],
@@ -23,13 +42,13 @@
       "name": "Today's Predictions",
       "short_name": "Predictions",
       "description": "View today's match predictions",
-      "url": "/predictions"
+      "url": "./?tab=predictions"
     },
     {
       "name": "Track Record",
       "short_name": "History",
       "description": "View prediction accuracy history",
-      "url": "/history"
+      "url": "./?tab=history"
     }
   ]
 }

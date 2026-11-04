@@ -1,5 +1,12 @@
-import { useMemo, useState } from "react";
-import { saveManualMatches } from "../data/api";
+import { useEffect, useMemo, useState } from "react";
+import { FileUp, X } from "lucide-react";
+import {
+  MANUAL_MATCHES_EVENT,
+  saveManualMatches,
+  getManualMatches,
+  removeManualMatches,
+  clearManualMatches,
+} from "../data/api";
 import {
   defaultColumnMapping,
   IMPORT_FIELDS,
@@ -10,6 +17,7 @@ import {
   type ImportField,
   type ImportRow,
 } from "../data/manualImport";
+import type { Match } from "../data/matchData";
 
 export function ManualImport() {
   const [rows, setRows] = useState<ImportRow[]>([]);
@@ -70,14 +78,14 @@ export function ManualImport() {
     <section className="bg-gray-900 rounded-xl p-4 border border-gray-800 space-y-3">
       <div>
         <h3 className="text-xs font-bold text-white uppercase tracking-wider">Upload fixtures & odds</h3>
-        <p className="text-[10px] text-gray-400 mt-1 leading-relaxed">
+        <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
           Import CSV, TSV, Excel, or JSON exports from Betika, SportPesa, SportyBet, or another source.
           Map that file’s columns to the fields below.
         </p>
       </div>
 
       <label className="block">
-        <span className="block text-[10px] text-gray-400 mb-1">Bookmaker / data source</span>
+        <span className="block text-[11px] text-gray-400 mb-1">Bookmaker / data source</span>
         <input
           value={source}
           onChange={(event) => setSource(event.target.value)}
@@ -87,7 +95,7 @@ export function ManualImport() {
       </label>
 
       <label className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-700 bg-gray-800/50 px-3 py-4 text-xs text-emerald-400 cursor-pointer hover:border-emerald-500/50">
-        <i className="fa-solid fa-file-arrow-up"></i>
+        <FileUp className="w-4 h-4" aria-hidden />
         {busy ? "Reading file…" : fileName || "Choose CSV, TSV, Excel, or JSON file"}
         <input
           type="file"
@@ -103,11 +111,11 @@ export function ManualImport() {
           <div className="grid grid-cols-1 gap-2">
             {IMPORT_FIELDS.map((field) => (
               <label key={field} className="flex items-center justify-between gap-3">
-                <span className="text-[10px] text-gray-400">{IMPORT_FIELD_LABELS[field]}</span>
+                <span className="text-[11px] text-gray-400">{IMPORT_FIELD_LABELS[field]}</span>
                 <select
                   value={mapping[field]}
                   onChange={(event) => updateMapping(field, event.target.value)}
-                  className="max-w-[55%] rounded bg-gray-800 border border-gray-700 px-2 py-1.5 text-[10px] text-white"
+                  className="max-w-[55%] rounded bg-gray-800 border border-gray-700 px-2 py-1.5 text-[11px] text-white"
                 >
                   <option value="">— Not mapped —</option>
                   {headers.map((header) => <option key={header} value={header}>{header}</option>)}
@@ -117,12 +125,12 @@ export function ManualImport() {
           </div>
 
           <div className="rounded-lg bg-gray-800/70 p-3">
-            <p className="text-[10px] font-semibold text-white">
+            <p className="text-[11px] font-semibold text-white">
               Preview: {prepared.matches.length} valid fixture{prepared.matches.length === 1 ? "" : "s"}
               {prepared.errors.length ? ` · ${prepared.errors.length} row${prepared.errors.length === 1 ? "" : "s"} skipped` : ""}
             </p>
             {prepared.matches[0] && (
-              <p className="text-[10px] text-gray-400 mt-1">
+              <p className="text-[11px] text-gray-400 mt-1">
                 {prepared.matches[0].homeTeam} vs {prepared.matches[0].awayTeam}
                 {" · "}{new Date(prepared.matches[0].kickoff).toLocaleString()}
                 {prepared.matches[0].odds && ` · ${[
@@ -133,7 +141,7 @@ export function ManualImport() {
               </p>
             )}
             {prepared.errors.length > 0 && (
-              <ul className="mt-2 space-y-1 text-[9px] text-amber-400">
+              <ul className="mt-2 space-y-1 text-[11px] text-amber-400">
                 {prepared.errors.slice(0, 3).map((message) => <li key={message}>{message}</li>)}
                 {prepared.errors.length > 3 && <li>And {prepared.errors.length - 3} more invalid rows.</li>}
               </ul>
@@ -151,12 +159,71 @@ export function ManualImport() {
         </>
       )}
 
-      {error && <p role="alert" className="text-[10px] text-red-400">{error}</p>}
-      {success && <p role="status" className="text-[10px] text-emerald-400">{success}</p>}
-      <p className="text-[9px] text-gray-500 leading-relaxed">
+      {error && <p role="alert" className="text-[11px] text-red-400">{error}</p>}
+      {success && <p role="status" className="text-[11px] text-emerald-400">{success}</p>}
+      <p className="text-[11px] text-gray-500 leading-relaxed">
         Fixtures and odds remain in this browser/device. Odds are treated as manually uploaded decimal prices,
         not live data, and will not alter the prediction model.
       </p>
+
+      <ManageUploads />
     </section>
+  );
+}
+
+function ManageUploads() {
+  const [fixtures, setFixtures] = useState<Match[]>([]);
+
+  useEffect(() => {
+    const refresh = () => setFixtures(getManualMatches());
+    refresh();
+    window.addEventListener(MANUAL_MATCHES_EVENT, refresh);
+    return () => window.removeEventListener(MANUAL_MATCHES_EVENT, refresh);
+  }, []);
+
+  if (fixtures.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-gray-700/60 bg-gray-800/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold text-white">
+          On this device ({fixtures.length})
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm(`Remove all ${fixtures.length} uploaded fixture${fixtures.length === 1 ? "" : "s"}?`)) {
+              clearManualMatches();
+            }
+          }}
+          className="text-[11px] font-medium text-red-400 hover:text-red-300"
+        >
+          Remove all
+        </button>
+      </div>
+      <ul className="divide-y divide-gray-700/40">
+        {fixtures.map((match) => (
+          <li key={`${match.kickoff}|${match.homeTeam}|${match.awayTeam}`} className="flex items-center justify-between gap-2 py-1.5">
+            <div className="min-w-0">
+              <p className="truncate text-[11px] text-gray-200">
+                {match.homeTeam} vs {match.awayTeam}
+              </p>
+              <p className="text-[11px] text-gray-500">
+                {new Date(match.kickoff).toLocaleString()}
+                {match.odds?.source ? ` · ${match.odds.source}` : ""}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label={`Remove ${match.homeTeam} vs ${match.awayTeam}`}
+              onClick={() => removeManualMatches([match])}
+              className="flex-shrink-0 rounded-md px-2 py-1 text-gray-400 hover:bg-gray-700/60 hover:text-red-400"
+            >
+              <X className="w-3.5 h-3.5" aria-hidden />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
