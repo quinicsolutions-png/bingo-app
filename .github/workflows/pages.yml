@@ -4,6 +4,12 @@ on:
   push:
     branches: [master, main]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: "Commit to build and deploy (defaults to the triggering sha)"
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -23,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Use Node.js 22
         uses: actions/setup-node@v4

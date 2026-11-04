@@ -23,10 +23,15 @@ on:
 permissions:
   contents: write
   issues: write
+  pages: write
+  id-token: write
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    outputs:
+      data_changed: ${{ steps.commit.outputs.changed }}
+      commit_sha: ${{ steps.commit.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,16 +57,20 @@ jobs:
           node scripts/refresh-matches.mjs
 
       - name: Commit data changes
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/data/slate.json public/data/history.json
           if git diff --cached --quiet; then
             echo "No data changes"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Refresh match slate"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Warn when the slate is still empty
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.mode != 'compare'
@@ -99,3 +108,10 @@ jobs:
             } else {
               await github.rest.issues.create({ ...context.repo, title, body });
             }
+
+  deploy-pages:
+    needs: refresh
+    if: needs.refresh.outputs.data_changed == 'true'
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: ${{ needs.refresh.outputs.commit_sha }}
