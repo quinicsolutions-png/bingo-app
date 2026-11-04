@@ -180,10 +180,18 @@ keytool -genkey -v -keystore bingo-release.keystore -alias bingo \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-Then add a `signingConfigs.release` block to `android/app/build.gradle`
-reading the keystore path and passwords from a local
-`android/keystore.properties` file (never committed), and run
-`./gradlew assembleRelease` from `android/`.
+Then copy `android/keystore.properties.example` to
+`android/keystore.properties` (git-ignored), fill in the keystore path and
+passwords, and run:
+
+```bash
+npm run android:apk:release
+```
+
+The signed release APK is written to
+`android/app/build/outputs/apk/release/app-release.apk`. Without a
+`keystore.properties` file the release build falls back to the debug key,
+so local builds keep working.
 
 ### GitHub Pages (Recommended)
 

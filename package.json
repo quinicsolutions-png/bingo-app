@@ -12,9 +12,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "data:refresh": "node scripts/refresh-matches.mjs",
-    "data:test": "node --test \"scripts/**/*.test.mjs\"",
+    "data:test": "node --test scripts/*.test.mjs",
     "android:sync": "npm run build && cap sync android",
-    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "android:apk:release": "npm run android:sync && cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
