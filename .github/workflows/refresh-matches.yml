@@ -84,7 +84,10 @@ jobs:
             git push origin "HEAD:refs/heads/$DATA_BRANCH"
           fi
 
-          if ! gh pr view "$DATA_BRANCH" >/dev/null 2>&1; then
+          # gh pr view <branch> also returns MERGED/CLOSED PRs; only reuse an
+          # open PR, otherwise create a fresh one for the new data commit.
+          PR_STATE=$(gh pr view "$DATA_BRANCH" --json state --jq .state 2>/dev/null || true)
+          if [ "$PR_STATE" != "OPEN" ]; then
             gh pr create --base main --head "$DATA_BRANCH" \
               --title "Refresh match slate" \
               --body "Automated match-data refresh from run ${GITHUB_RUN_ID}."
