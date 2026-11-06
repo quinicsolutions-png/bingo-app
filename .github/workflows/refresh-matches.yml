@@ -23,6 +23,8 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
+  actions: write
   pages: write
   id-token: write
 
@@ -58,6 +60,10 @@ jobs:
 
       - name: Commit data changes
         id: commit
+        timeout-minutes: 10
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATA_BRANCH: data/refresh
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -68,9 +74,44 @@ jobs:
             exit 0
           fi
           git commit -m "Refresh match slate"
-          git push
+
+          # main requires a PR (ruleset "Protect main"), so land data changes
+          # through the data branch + auto-merged PR instead of a direct push.
+          EXPECTED=$(git ls-remote origin "refs/heads/$DATA_BRANCH" | cut -f1)
+          if [ -n "$EXPECTED" ]; then
+            git push --force-with-lease="refs/heads/$DATA_BRANCH:$EXPECTED" origin "HEAD:refs/heads/$DATA_BRANCH"
+          else
+            git push origin "HEAD:refs/heads/$DATA_BRANCH"
+          fi
+
+          if ! gh pr view "$DATA_BRANCH" >/dev/null 2>&1; then
+            gh pr create --base main --head "$DATA_BRANCH" \
+              --title "Refresh match slate" \
+              --body "Automated match-data refresh from run ${GITHUB_RUN_ID}."
+          fi
+
+          # GITHUB_TOKEN pushes never trigger workflows, so the required "test"
+          # check will not start on its own - dispatch it explicitly.
+          gh workflow run tests.yml --ref "$DATA_BRANCH"
+          HEAD_SHA=$(git rev-parse HEAD)
+          RUN_ID=""
+          for i in $(seq 1 12); do
+            RUN_ID=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
+              --json databaseId,headSha \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\") | .databaseId" | head -1)
+            [ -n "$RUN_ID" ] && break
+            sleep 10
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::Dispatched Tests run did not appear for $HEAD_SHA"
+            exit 1
+          fi
+          gh run watch "$RUN_ID" --exit-status
+
+          gh pr merge "$DATA_BRANCH" --merge || (sleep 20 && gh pr merge "$DATA_BRANCH" --merge)
+
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(gh pr view "$DATA_BRANCH" --json mergeCommit --jq '.mergeCommit.oid')" >> "$GITHUB_OUTPUT"
 
       - name: Warn when the slate is still empty
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.mode != 'compare'
