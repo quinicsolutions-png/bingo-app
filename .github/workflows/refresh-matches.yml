@@ -20,6 +20,12 @@ on:
           - tubet
         default: football-data
 
+# Serialize refreshes: the every-30-min schedule can overlap a manual
+# dispatch, and two concurrent runs race the data/refresh force-push.
+concurrency:
+  group: refresh-matches
+  cancel-in-progress: false
+
 permissions:
   contents: write
   issues: write
@@ -97,37 +103,42 @@ jobs:
           # action_required state, and check runs from GITHUB_TOKEN dispatches
           # or synthetic check-run creation never roll up to the PR. That
           # queued run is the only way the ruleset's required "test" check
-          # can report, so approve it here and wait for it.
+          # can report, so approve it here and wait for it. A queued run
+          # reports status=completed with conclusion=action_required.
           HEAD_SHA=$(git rev-parse HEAD)
           PENDING=""
           for i in $(seq 1 12); do
             PENDING=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
               --event pull_request \
-              --json databaseId,headSha,status \
-              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .status == \"action_required\") | .databaseId" | head -1)
+              --json databaseId,headSha,conclusion \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .conclusion == \"action_required\") | .databaseId" | head -1)
             [ -n "$PENDING" ] && break
             sleep 10
           done
           if [ -n "$PENDING" ]; then
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${PENDING}/approve"
-          else
-            echo "::warning::No action_required Tests run found for $HEAD_SHA"
-          fi
-
-          RUN_ID=""
-          for i in $(seq 1 12); do
-            RUN_ID=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
+            # Cancel queued Tests runs left behind by earlier head SHAs on
+            # this branch so they do not linger in action_required forever.
+            gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
               --event pull_request \
-              --json databaseId,headSha,status \
-              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .status != \"action_required\") | .databaseId" | head -1)
-            [ -n "$RUN_ID" ] && break
-            sleep 10
-          done
-          if [ -z "$RUN_ID" ]; then
-            echo "::error::Tests run never started for $HEAD_SHA"
-            exit 1
+              --json databaseId,headSha,conclusion \
+              --jq ".[] | select(.conclusion == \"action_required\" and .headSha != \"$HEAD_SHA\") | .databaseId" \
+              | while read -r STALE; do
+                  gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${STALE}/cancel" || true
+                done
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${PENDING}/approve"
+            gh run watch "$PENDING" --exit-status
+          else
+            # Retry path: a previous attempt may have approved and passed
+            # the run for this head SHA already.
+            DONE=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
+              --event pull_request \
+              --json databaseId,headSha,status,conclusion \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .status == \"completed\" and .conclusion == \"success\") | .databaseId" | head -1)
+            if [ -z "$DONE" ]; then
+              echo "::error::No queued or passed Tests run for $HEAD_SHA"
+              exit 1
+            fi
           fi
-          gh run watch "$RUN_ID" --exit-status
 
           gh pr merge "$DATA_BRANCH" --merge || (sleep 20 && gh pr merge "$DATA_BRANCH" --merge)
 
