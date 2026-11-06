@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T22:51:52.584Z",
+  "generatedAt": "2026-11-06T21:17:15.604Z",
   "week": {
     "id": "slate-2026-11-05-555071",
     "label": "Slate — 5 Nov 2026",
@@ -15,7 +15,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-05T00:30:00Z",
-        "status": "scheduled",
+        "status": "finished",
         "matchday": 34,
         "season": "2026/27",
         "prediction": {
@@ -28,7 +28,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 13th in the table • Away side sit 7th in the table • Home score 1.4/game at home • Away concede 1.2/game on the road • Expected goals 1.2 – 1.5 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 1,
+          "awayGoals": 0,
+          "outcome": "1",
+          "correct": false
+        }
       },
       {
         "id": "555078",
@@ -39,7 +44,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-05T00:30:00Z",
-        "status": "scheduled",
+        "status": "finished",
         "matchday": 34,
         "season": "2026/27",
         "prediction": {
@@ -52,7 +57,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 10th in the table • Away side sit 18th in the table • Home score 1.2/game at home • Away concede 1.3/game on the road • Evenly matched sides • Expected goals 1.2 – 1.1 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "outcome": "X",
+          "correct": false
+        }
       },
       {
         "id": "555077",
@@ -63,7 +73,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-05T22:30:00Z",
-        "status": "scheduled",
+        "status": "finished",
         "matchday": 34,
         "season": "2026/27",
         "prediction": {
@@ -76,7 +86,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 2nd in the table • Away side sit 19th in the table • Home score 1.7/game at home • Away concede 1.5/game on the road • Expected goals 1.8 – 0.7 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 6,
+          "awayGoals": 1,
+          "outcome": "1",
+          "correct": true
+        }
       },
       {
         "id": "555074",
@@ -87,7 +102,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-06T00:30:00Z",
-        "status": "scheduled",
+        "status": "finished",
         "matchday": 34,
         "season": "2026/27",
         "prediction": {
@@ -100,7 +115,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 3rd in the table • Away side sit 6th in the table • Home score 1.6/game at home • Away concede 1.3/game on the road • Expected goals 1.5 – 1.5 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 3,
+          "awayGoals": 2,
+          "outcome": "1",
+          "correct": false
+        }
       },
       {
         "id": "558845",
@@ -111,7 +131,7 @@
         "league": "Eredivisie",
         "leagueIcon": "🇳🇱",
         "kickoff": "2026-11-06T19:00:00Z",
-        "status": "scheduled",
+        "status": "finished",
         "matchday": 12,
         "season": "2026/27",
         "prediction": {
@@ -124,7 +144,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 18th in the table • Away side sit 14th in the table • Home score 0.9/game at home • Away concede 2.1/game on the road • Expected goals 1.5 – 2.1 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "outcome": "X",
+          "correct": false
+        }
       },
       {
         "id": "565852",
@@ -135,7 +160,7 @@
         "league": "Bundesliga",
         "leagueIcon": "🇩🇪",
         "kickoff": "2026-11-06T19:30:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 9,
         "season": "2026/27",
         "prediction": {
@@ -159,7 +184,7 @@
         "league": "Ligue 1",
         "leagueIcon": "🇫🇷",
         "kickoff": "2026-11-06T19:45:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 10,
         "season": "2026/27",
         "prediction": {
@@ -183,7 +208,7 @@
         "league": "Serie A",
         "leagueIcon": "🇮🇹",
         "kickoff": "2026-11-06T19:45:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 11,
         "season": "2026/27",
         "prediction": {
@@ -207,7 +232,7 @@
         "league": "Championship",
         "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
         "kickoff": "2026-11-06T20:00:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 15,
         "season": "2026/27",
         "prediction": {
@@ -231,7 +256,7 @@
         "league": "Primera Division",
         "leagueIcon": "🇪🇸",
         "kickoff": "2026-11-06T20:00:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 12,
         "season": "2026/27",
         "prediction": {
@@ -255,7 +280,7 @@
         "league": "Premier League",
         "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
         "kickoff": "2026-11-06T20:00:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 10,
         "season": "2026/27",
         "prediction": {
@@ -279,7 +304,7 @@
         "league": "Primeira Liga",
         "leagueIcon": "🇵🇹",
         "kickoff": "2026-11-06T20:45:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 11,
         "season": "2026/27",
         "prediction": {
