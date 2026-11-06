@@ -25,7 +25,6 @@ permissions:
   issues: write
   pull-requests: write
   actions: write
-  checks: write
   pages: write
   id-token: write
 
@@ -94,37 +93,41 @@ jobs:
               --body "Automated match-data refresh from run ${GITHUB_RUN_ID}."
           fi
 
-          # GITHUB_TOKEN pushes never trigger workflows, so the required "test"
-          # check will not start on its own - dispatch it explicitly.
-          gh workflow run tests.yml --ref "$DATA_BRANCH"
+          # PRs opened with GITHUB_TOKEN queue the pull_request Tests run in
+          # action_required state, and check runs from GITHUB_TOKEN dispatches
+          # or synthetic check-run creation never roll up to the PR. That
+          # queued run is the only way the ruleset's required "test" check
+          # can report, so approve it here and wait for it.
           HEAD_SHA=$(git rev-parse HEAD)
+          PENDING=""
+          for i in $(seq 1 12); do
+            PENDING=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
+              --event pull_request \
+              --json databaseId,headSha,status \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .status == \"action_required\") | .databaseId" | head -1)
+            [ -n "$PENDING" ] && break
+            sleep 10
+          done
+          if [ -n "$PENDING" ]; then
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${PENDING}/approve"
+          else
+            echo "::warning::No action_required Tests run found for $HEAD_SHA"
+          fi
+
           RUN_ID=""
           for i in $(seq 1 12); do
-            # Filter by event: the bot-opened PR queues a pull_request run in
-            # action_required state that would otherwise be picked up here.
             RUN_ID=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
-              --event workflow_dispatch \
-              --json databaseId,headSha \
-              --jq ".[] | select(.headSha == \"$HEAD_SHA\") | .databaseId" | head -1)
+              --event pull_request \
+              --json databaseId,headSha,status \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\" and .status != \"action_required\") | .databaseId" | head -1)
             [ -n "$RUN_ID" ] && break
             sleep 10
           done
           if [ -z "$RUN_ID" ]; then
-            echo "::error::Dispatched Tests run did not appear for $HEAD_SHA"
+            echo "::error::Tests run never started for $HEAD_SHA"
             exit 1
           fi
           gh run watch "$RUN_ID" --exit-status
-
-          # Check runs from workflow_dispatch runs never roll up to the pull
-          # request, so the required "test" check stays unreported for the
-          # bot's data PR. Report it explicitly once the run has passed.
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/check-runs" \
-            -f head_sha="$HEAD_SHA" \
-            -f name=test \
-            -f status=completed \
-            -f conclusion=success \
-            -f "output[title]=Data refresh tests" \
-            -f "output[summary]=Dispatched Tests run ${RUN_ID} passed on this commit."
 
           gh pr merge "$DATA_BRANCH" --merge || (sleep 20 && gh pr merge "$DATA_BRANCH" --merge)
 
