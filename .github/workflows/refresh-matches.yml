@@ -25,6 +25,7 @@ permissions:
   issues: write
   pull-requests: write
   actions: write
+  checks: write
   pages: write
   id-token: write
 
@@ -113,6 +114,17 @@ jobs:
             exit 1
           fi
           gh run watch "$RUN_ID" --exit-status
+
+          # Check runs from workflow_dispatch runs never roll up to the pull
+          # request, so the required "test" check stays unreported for the
+          # bot's data PR. Report it explicitly once the run has passed.
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/check-runs" \
+            -f head_sha="$HEAD_SHA" \
+            -f name=test \
+            -f status=completed \
+            -f conclusion=success \
+            -f "output[title]=Data refresh tests" \
+            -f "output[summary]=Dispatched Tests run ${RUN_ID} passed on this commit."
 
           gh pr merge "$DATA_BRANCH" --merge || (sleep 20 && gh pr merge "$DATA_BRANCH" --merge)
 
