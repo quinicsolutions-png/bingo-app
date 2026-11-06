@@ -96,7 +96,10 @@ jobs:
           HEAD_SHA=$(git rev-parse HEAD)
           RUN_ID=""
           for i in $(seq 1 12); do
+            # Filter by event: the bot-opened PR queues a pull_request run in
+            # action_required state that would otherwise be picked up here.
             RUN_ID=$(gh run list --workflow tests.yml --branch "$DATA_BRANCH" \
+              --event workflow_dispatch \
               --json databaseId,headSha \
               --jq ".[] | select(.headSha == \"$HEAD_SHA\") | .databaseId" | head -1)
             [ -n "$RUN_ID" ] && break
