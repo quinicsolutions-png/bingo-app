@@ -1,6 +1,394 @@
 {
-  "generatedAt": "2026-11-07T14:59:33.530Z",
+  "generatedAt": "2026-11-07T19:20:57.504Z",
   "weeks": [
+    {
+      "id": "slate-2026-11-07-561933",
+      "label": "Slate — 7 Nov 2026",
+      "status": "settled",
+      "cutoffTime": "2026-11-07T12:30:00Z",
+      "matches": [
+        {
+          "id": "561933",
+          "homeTeam": "Wrexham AFC",
+          "awayTeam": "Wolverhampton Wanderers FC",
+          "homeShort": "WRE",
+          "awayShort": "WOL",
+          "league": "Championship",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T12:30:00Z",
+          "status": "finished",
+          "matchday": 15,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.28,
+            "draw": 0.27,
+            "away": 0.45,
+            "pick": "2",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.45,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 16th in the table • Away side sit 2nd in the table • Home score 1.2/game at home • Away concede 1.2/game on the road • Away side score freely on the road • Expected goals 1.2 – 1.6 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 1,
+            "outcome": "X",
+            "correct": false
+          }
+        },
+        {
+          "id": "561939",
+          "homeTeam": "Bristol City FC",
+          "awayTeam": "Norwich City FC",
+          "homeShort": "BRI",
+          "awayShort": "NOR",
+          "league": "Championship",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T12:30:00Z",
+          "status": "finished",
+          "matchday": 15,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.32,
+            "draw": 0.26,
+            "away": 0.42,
+            "pick": "2",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.42,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 15th in the table • Away side sit 12th in the table • Home score 1.1/game at home • Away concede 1.7/game on the road • Away side score freely on the road • Expected goals 1.4 – 1.6 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 0,
+            "awayGoals": 5,
+            "outcome": "2",
+            "correct": true
+          }
+        },
+        {
+          "id": "561938",
+          "homeTeam": "Portsmouth FC",
+          "awayTeam": "Stoke City FC",
+          "homeShort": "POR",
+          "awayShort": "STK",
+          "league": "Championship",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T12:30:00Z",
+          "status": "finished",
+          "matchday": 15,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.34,
+            "draw": 0.28,
+            "away": 0.37,
+            "pick": "2",
+            "confidence": "LOW",
+            "confidenceScore": 0.37,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 10th in the table • Away side sit 4th in the table • Home score 1.4/game at home • Away concede 1.2/game on the road • Evenly matched sides • Expected goals 1.3 – 1.3 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 2,
+            "outcome": "2",
+            "correct": true
+          }
+        },
+        {
+          "id": "560632",
+          "homeTeam": "Leeds United FC",
+          "awayTeam": "Tottenham Hotspur FC",
+          "homeShort": "LEE",
+          "awayShort": "TOT",
+          "league": "Premier League",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T12:30:00Z",
+          "status": "finished",
+          "matchday": 10,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.35,
+            "draw": 0.31,
+            "away": 0.33,
+            "pick": "1",
+            "confidence": "DRAW_ALERT",
+            "confidenceScore": 0.35,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 12th in the table • Away side sit 9th in the table • Home score 1.0/game at home • Away concede 1.1/game on the road • Evenly matched sides • Expected goals 1.1 – 1.1 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 0,
+            "outcome": "1",
+            "correct": true
+          }
+        },
+        {
+          "id": "564744",
+          "homeTeam": "Málaga CF",
+          "awayTeam": "Real Racing Club de Santander",
+          "homeShort": "MAL",
+          "awayShort": "SAN",
+          "league": "Primera Division",
+          "leagueIcon": "🇪🇸",
+          "kickoff": "2026-11-07T13:00:00Z",
+          "status": "finished",
+          "matchday": 12,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.36,
+            "draw": 0.25,
+            "away": 0.39,
+            "pick": "2",
+            "confidence": "LOW",
+            "confidenceScore": 0.39,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 20th in the table • Away side sit 16th in the table • Home score 0.7/game at home • Away concede 2.6/game on the road • Expected goals 1.5 – 1.6 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 2,
+            "outcome": "2",
+            "correct": true
+          }
+        },
+        {
+          "id": "558532",
+          "homeTeam": "Torino FC",
+          "awayTeam": "US Lecce",
+          "homeShort": "TOR",
+          "awayShort": "USL",
+          "league": "Serie A",
+          "leagueIcon": "🇮🇹",
+          "kickoff": "2026-11-07T14:00:00Z",
+          "status": "finished",
+          "matchday": 11,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.45,
+            "draw": 0.25,
+            "away": 0.3,
+            "pick": "1",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.45,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 10th in the table • Away side sit 14th in the table • Home score 1.4/game at home • Away concede 2.1/game on the road • Evenly matched sides • Expected goals 1.7 – 1.4 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 1,
+            "outcome": "X",
+            "correct": false
+          }
+        },
+        {
+          "id": "558534",
+          "homeTeam": "Cagliari Calcio",
+          "awayTeam": "Frosinone Calcio",
+          "homeShort": "CAG",
+          "awayShort": "FRO",
+          "league": "Serie A",
+          "leagueIcon": "🇮🇹",
+          "kickoff": "2026-11-07T14:00:00Z",
+          "status": "finished",
+          "matchday": 11,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.23,
+            "draw": 0.24,
+            "away": 0.53,
+            "pick": "2",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.53,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 12th in the table • Away side sit 6th in the table • Home score 0.9/game at home • Away concede 1.4/game on the road • Away side score freely on the road • Expected goals 1.2 – 1.9 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 0,
+            "outcome": "1",
+            "correct": false
+          }
+        },
+        {
+          "id": "565853",
+          "homeTeam": "SC Paderborn 07",
+          "awayTeam": "Eintracht Frankfurt",
+          "homeShort": "SCP",
+          "awayShort": "SGE",
+          "league": "Bundesliga",
+          "leagueIcon": "🇩🇪",
+          "kickoff": "2026-11-07T14:30:00Z",
+          "status": "finished",
+          "matchday": 9,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.38,
+            "draw": 0.26,
+            "away": 0.36,
+            "pick": "1",
+            "confidence": "LOW",
+            "confidenceScore": 0.38,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 15th in the table • Away side sit 9th in the table • Home score 0.8/game at home • Away concede 2.3/game on the road • Away side score freely on the road • Expected goals 1.5 – 1.5 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 2,
+            "awayGoals": 2,
+            "outcome": "X",
+            "correct": false
+          }
+        },
+        {
+          "id": "565851",
+          "homeTeam": "1. FSV Mainz 05",
+          "awayTeam": "FC Bayern München",
+          "homeShort": "M05",
+          "awayShort": "FCB",
+          "league": "Bundesliga",
+          "leagueIcon": "🇩🇪",
+          "kickoff": "2026-11-07T14:30:00Z",
+          "status": "finished",
+          "matchday": 9,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.22,
+            "draw": 0.19,
+            "away": 0.59,
+            "pick": "2",
+            "confidence": "HIGH",
+            "confidenceScore": 0.59,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 10th in the table • Away side sit 1st in the table • Home score 2.1/game at home • Away concede 1.0/game on the road • Away side score freely on the road • Evenly matched sides • Expected goals 1.6 – 2.6 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 2,
+            "outcome": "2",
+            "correct": true
+          }
+        },
+        {
+          "id": "565848",
+          "homeTeam": "RB Leipzig",
+          "awayTeam": "FC Augsburg",
+          "homeShort": "RBL",
+          "awayShort": "FCA",
+          "league": "Bundesliga",
+          "leagueIcon": "🇩🇪",
+          "kickoff": "2026-11-07T14:30:00Z",
+          "status": "finished",
+          "matchday": 9,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.47,
+            "draw": 0.21,
+            "away": 0.31,
+            "pick": "1",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.47,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 4th in the table • Away side sit 11th in the table • Home score 2.8/game at home • Away concede 1.9/game on the road • Away side score freely on the road • Evenly matched sides • Expected goals 2.2 – 1.8 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 5,
+            "awayGoals": 2,
+            "outcome": "1",
+            "correct": true
+          }
+        },
+        {
+          "id": "565850",
+          "homeTeam": "Borussia Dortmund",
+          "awayTeam": "SV 07 Elversberg",
+          "homeShort": "BVB",
+          "awayShort": "ELV",
+          "league": "Bundesliga",
+          "leagueIcon": "🇩🇪",
+          "kickoff": "2026-11-07T14:30:00Z",
+          "status": "finished",
+          "matchday": 9,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.47,
+            "draw": 0.24,
+            "away": 0.29,
+            "pick": "1",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.47,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 2nd in the table • Away side sit 7th in the table • Home score 1.8/game at home • Away concede 2.0/game on the road • Away side score freely on the road • Expected goals 1.9 – 1.4 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 2,
+            "awayGoals": 1,
+            "outcome": "1",
+            "correct": true
+          }
+        },
+        {
+          "id": "561937",
+          "homeTeam": "Preston North End FC",
+          "awayTeam": "Southampton FC",
+          "homeShort": "PNE",
+          "awayShort": "SOU",
+          "league": "Championship",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T15:00:00Z",
+          "status": "finished",
+          "matchday": 15,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.14,
+            "draw": 0.2,
+            "away": 0.66,
+            "pick": "2",
+            "confidence": "HIGH",
+            "confidenceScore": 0.66,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 24th in the table • Away side sit 7th in the table • Home score 0.9/game at home • Away concede 1.0/game on the road • Away side score freely on the road • Away attack threatens a home defence that concedes • Evenly matched sides • Expected goals 0.9 – 2.2 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 1,
+            "awayGoals": 0,
+            "outcome": "1",
+            "correct": false
+          }
+        },
+        {
+          "id": "561929",
+          "homeTeam": "Queens Park Rangers FC",
+          "awayTeam": "Lincoln City FC",
+          "homeShort": "QPR",
+          "awayShort": "LIN",
+          "league": "Championship",
+          "leagueIcon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "kickoff": "2026-11-07T15:00:00Z",
+          "status": "finished",
+          "matchday": 15,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.49,
+            "draw": 0.26,
+            "away": 0.24,
+            "pick": "1",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.49,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 11th in the table • Away side sit 19th in the table • Home score 1.6/game at home • Away concede 1.7/game on the road • Evenly matched sides • Expected goals 1.7 – 1.1 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 2,
+            "awayGoals": 1,
+            "outcome": "1",
+            "correct": true
+          }
+        }
+      ],
+      "score": 8,
+      "totalMatches": 13,
+      "settledAt": "2026-11-07T19:20:57.504Z"
+    },
     {
       "id": "slate-2026-11-05-555071",
       "label": "Slate — 5 Nov 2026",
