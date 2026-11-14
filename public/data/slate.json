@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T00:32:02.880Z",
+  "generatedAt": "2026-11-14T22:54:14.842Z",
   "week": {
     "id": "slate-2026-11-14-555085",
     "label": "Campeonato Brasileiro Série A — 14 Nov 2026",
@@ -15,7 +15,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-14T21:30:00Z",
-        "status": "scheduled",
+        "status": "live",
         "matchday": 35,
         "season": "2026/27",
         "prediction": {
