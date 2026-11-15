@@ -1,6 +1,75 @@
 {
-  "generatedAt": "2026-11-14T22:54:14.842Z",
+  "generatedAt": "2026-11-15T02:23:18.776Z",
   "weeks": [
+    {
+      "id": "slate-2026-11-14-555085",
+      "label": "Campeonato Brasileiro Série A — 14 Nov 2026",
+      "status": "settled",
+      "cutoffTime": "2026-11-14T21:30:00Z",
+      "matches": [
+        {
+          "id": "555085",
+          "homeTeam": "Mirassol FC",
+          "awayTeam": "CA Mineiro",
+          "homeShort": "MIR",
+          "awayShort": "CAM",
+          "league": "Campeonato Brasileiro Série A",
+          "leagueIcon": "🇧🇷",
+          "kickoff": "2026-11-14T21:30:00Z",
+          "status": "finished",
+          "matchday": 35,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.29,
+            "draw": 0.29,
+            "away": 0.42,
+            "pick": "2",
+            "confidence": "LOW",
+            "confidenceScore": 0.42,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 14th in the table • Away side sit 7th in the table • Home score 1.1/game at home • Away concede 1.2/game on the road • Evenly matched sides • Expected goals 1.1 – 1.4 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 0,
+            "awayGoals": 0,
+            "outcome": "X",
+            "correct": false
+          }
+        },
+        {
+          "id": "554942",
+          "homeTeam": "Chapecoense AF",
+          "awayTeam": "CR Vasco da Gama",
+          "homeShort": "CHA",
+          "awayShort": "VAS",
+          "league": "Campeonato Brasileiro Série A",
+          "leagueIcon": "🇧🇷",
+          "kickoff": "2026-11-14T23:30:00Z",
+          "status": "finished",
+          "matchday": 21,
+          "season": "2026/27",
+          "prediction": {
+            "home": 0.24,
+            "draw": 0.25,
+            "away": 0.51,
+            "pick": "2",
+            "confidence": "MEDIUM",
+            "confidenceScore": 0.51,
+            "model": "Dixon-Coles + Poisson",
+            "reasoning": "Home side sit 20th in the table • Away side sit 13th in the table • Home score 1.0/game at home • Away concede 1.5/game on the road • Evenly matched sides • Expected goals 1.2 – 1.8 • Model: Dixon-Coles + Poisson"
+          },
+          "result": {
+            "homeGoals": 0,
+            "awayGoals": 2,
+            "outcome": "2",
+            "correct": true
+          }
+        }
+      ],
+      "score": 1,
+      "totalMatches": 2,
+      "settledAt": "2026-11-15T02:23:18.776Z"
+    },
     {
       "id": "slate-2026-11-08-559632",
       "label": "Slate — 8 Nov 2026",
