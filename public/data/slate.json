@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T00:51:20.423Z",
+  "generatedAt": "2026-11-20T08:04:05.659Z",
   "week": {
     "id": "slate-2026-11-18-555081",
     "label": "Slate — 18 Nov 2026",
@@ -247,7 +247,7 @@
         "league": "Campeonato Brasileiro Série A",
         "leagueIcon": "🇧🇷",
         "kickoff": "2026-11-20T00:30:00Z",
-        "status": "live",
+        "status": "finished",
         "matchday": 35,
         "season": "2026/27",
         "prediction": {
@@ -260,7 +260,12 @@
           "model": "Dixon-Coles + Poisson",
           "reasoning": "Home side sit 10th in the table • Away side sit 4th in the table • Home score 1.1/game at home • Away concede 1.2/game on the road • Away side score freely on the road • Expected goals 1.1 – 1.4 • Model: Dixon-Coles + Poisson"
         },
-        "result": null
+        "result": {
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "outcome": "2",
+          "correct": true
+        }
       },
       {
         "id": "565859",
